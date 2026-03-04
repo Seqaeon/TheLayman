@@ -1,0 +1,32 @@
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# SQLite database (your local data — never commit this)
+cache/*.db
+the_layman/cache/*.db
+*.db
+
+# Uploaded PDFs
+cache/uploads/
+the_layman/cache/uploads/
+
+# Secrets (never commit)
+.env
+
+# OS clutter
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Test cache
+.pytest_cache/
