@@ -1,0 +1,1562 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>THE LAYMAN — Daily Discovery Feed</title>
+    <meta name="description"
+        content="Discover the top 100 academic papers each day, ranked by real-world impact. From AI to biomolecules, explained in plain language." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cinzel:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0a0a0f;
+            --surface: #13131a;
+            --surface-2: #1c1c28;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.18);
+            --text: #e8e8f0;
+            --text-muted: #8888a8;
+            --text-faint: #55556a;
+            --accent: #7c6cf8;
+            --accent-2: #a78bfa;
+            --accent-glow: rgba(124, 108, 248, 0.25);
+            --green: #22d3a0;
+            --amber: #f59e0b;
+            --red: #f43f5e;
+            --radius: 14px;
+            --radius-sm: 8px;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* ── Noise texture overlay ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── Gradient orb behind header ── */
+        .orb {
+            position: fixed;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 500px;
+            background: radial-gradient(ellipse at center, rgba(124, 108, 248, 0.18) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── Page wrapper ── */
+        .page {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 1.25rem 4rem;
+        }
+
+        /* ── Header ── */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.75rem 0 2rem;
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(4px);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .logo-name {
+            font-family: 'Cinzel', serif;
+            font-size: 1.0rem;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: 0.14em;
+            line-height: 1.15;
+        }
+
+        .logo-name span {
+            color: var(--accent-2);
+        }
+
+        .logo-motto {
+            font-size: 0.6rem;
+            font-style: italic;
+            color: var(--text-faint);
+            letter-spacing: 0.04em;
+            line-height: 1.2;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 500;
+            padding: 0.45rem 0.85rem;
+            border-radius: var(--radius-sm);
+            transition: color 0.2s, background 0.2s;
+        }
+
+        .nav a:hover {
+            color: var(--text);
+            background: var(--surface-2);
+        }
+
+        .btn-settings {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.48rem 1rem;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-settings:hover {
+            background: var(--surface);
+            border-color: var(--border-hover);
+            color: var(--text);
+            box-shadow: 0 0 0 1px var(--border-hover);
+        }
+
+        /* ── Feed header ── */
+        .feed-header {
+            padding: 2.5rem 0 1.5rem;
+        }
+
+        .feed-header-top {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .feed-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, var(--text) 30%, var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .feed-date {
+            font-size: 0.82rem;
+            color: var(--text-faint);
+        }
+
+        .feed-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* ── Loading state ── */
+        #loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            padding: 5rem 0;
+        }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--surface-2);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* ── Paper cards ── */
+        #feed-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .paper-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.4rem 1.5rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.4s ease both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .paper-card:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+
+        .paper-card:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .paper-card:nth-child(3) {
+            animation-delay: 0.15s;
+        }
+
+        .paper-card:nth-child(4) {
+            animation-delay: 0.2s;
+        }
+
+        .paper-card:nth-child(5) {
+            animation-delay: 0.25s;
+        }
+
+        .paper-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 60%, rgba(124, 108, 248, 0.04) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .paper-card:hover {
+            border-color: rgba(124, 108, 248, 0.35);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(124, 108, 248, 0.1);
+        }
+
+        .paper-card:hover::before {
+            opacity: 1;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+            gap: 1rem;
+        }
+
+        .card-rank {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-faint);
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .card-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            line-height: 1.4;
+            color: var(--text);
+            flex: 1;
+            letter-spacing: -0.01em;
+            transition: color 0.2s;
+        }
+
+        .paper-card:hover .card-title {
+            color: #fff;
+        }
+
+        .card-badges {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+            align-items: center;
+        }
+
+        .badge {
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .badge-field {
+            background: rgba(124, 108, 248, 0.15);
+            color: var(--accent-2);
+            border: 1px solid rgba(124, 108, 248, 0.2);
+        }
+
+        .badge-score {
+            background: rgba(245, 158, 11, 0.12);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+
+        .score-high {
+            background: rgba(34, 211, 160, 0.12);
+            color: var(--green);
+            border-color: rgba(34, 211, 160, 0.2);
+        }
+
+        .score-mid {
+            background: rgba(245, 158, 11, 0.12);
+            color: #fbbf24;
+            border-color: rgba(245, 158, 11, 0.2);
+        }
+
+        .score-low {
+            background: rgba(100, 100, 120, 0.12);
+            color: var(--text-faint);
+            border-color: rgba(100, 100, 120, 0.2);
+        }
+
+        /* ── Buzz / trending badge ── */
+        .badge-buzz {
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+            border-radius: 20px;
+            padding: 0.22rem 0.6rem;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            border: 1px solid;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .badge-buzz::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.12) 50%, transparent 100%);
+            transform: translateX(-100%);
+            animation: buzz-shimmer 2.8s ease-in-out infinite;
+        }
+
+        @keyframes buzz-shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            40% {
+                transform: translateX(100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .buzz-hot {
+            background: rgba(251, 146, 60, 0.14);
+            color: #fb923c;
+            border-color: rgba(251, 146, 60, 0.3);
+        }
+
+        .buzz-warm {
+            background: rgba(124, 108, 248, 0.14);
+            color: var(--accent-2);
+            border-color: rgba(124, 108, 248, 0.3);
+        }
+
+        .card-abstract {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            line-height: 1.65;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .btn-breakdown {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.45rem 1rem;
+            background: rgba(124, 108, 248, 0.1);
+            border: 1px solid rgba(124, 108, 248, 0.25);
+            border-radius: var(--radius-sm);
+            color: var(--accent-2);
+            font-size: 0.83rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-breakdown:hover {
+            background: rgba(124, 108, 248, 0.2);
+            border-color: rgba(124, 108, 248, 0.5);
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(124, 108, 248, 0.2);
+        }
+
+        .btn-breakdown svg {
+            transition: transform 0.2s;
+        }
+
+        .btn-breakdown:hover svg {
+            transform: translateX(3px);
+        }
+
+        /* ── Empty state ── */
+        .empty-state {
+            text-align: center;
+            padding: 5rem 0;
+        }
+
+        .empty-state .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h3 {
+            font-size: 1.1rem;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+
+        /* ── Settings Modal ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s;
+            padding: 0 1rem 0;
+        }
+
+        @media (min-width: 600px) {
+            .modal-overlay {
+                align-items: center;
+            }
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius) var(--radius) 0 0;
+            width: 100%;
+            max-width: 520px;
+            padding: 1.75rem;
+            box-shadow: var(--shadow);
+            transform: translateY(40px);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            max-height: 92vh;
+            overflow-y: auto;
+        }
+
+        @media (min-width: 600px) {
+            .modal {
+                border-radius: var(--radius);
+                transform: translateY(0) scale(0.95);
+            }
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0) scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            width: 32px;
+            height: 32px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            background: #2a2a3a;
+            color: var(--text);
+        }
+
+        .input-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 0.6rem;
+        }
+
+        .input-group input[type="text"],
+        .input-group textarea {
+            width: 100%;
+            padding: 0.65rem 0.85rem;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+
+        .input-group input[type="text"]:focus,
+        .input-group textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(124, 108, 248, 0.15);
+        }
+
+        .input-group textarea {
+            resize: vertical;
+            min-height: 80px;
+            line-height: 1.55;
+        }
+
+        .input-group input::placeholder,
+        .input-group textarea::placeholder {
+            color: var(--text-faint);
+        }
+
+        .help-text {
+            font-size: 0.77rem;
+            color: var(--text-faint);
+            margin-top: 0.35rem;
+            display: block;
+        }
+
+        /* ── Chip group headers ── */
+        .chip-group {
+            width: 100%;
+            margin-top: 0.75rem;
+        }
+
+        .chip-group:first-child {
+            margin-top: 0;
+        }
+
+        .chip-group-label {
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-faint);
+            margin-bottom: 0.45rem;
+        }
+
+        .chip-group-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+        }
+
+        .chips-scroll {
+            max-height: 280px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .chip {
+            padding: 0.35rem 0.85rem;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .chip:hover {
+            border-color: var(--border-hover);
+            color: var(--text);
+            background: var(--surface-2);
+        }
+
+        .chip.active {
+            background: rgba(124, 108, 248, 0.15);
+            color: var(--accent-2);
+            border-color: rgba(124, 108, 248, 0.4);
+            box-shadow: 0 0 12px rgba(124, 108, 248, 0.1);
+        }
+
+        /* ── Pipeline section ── */
+        .pipeline-section {
+            border-top: 1px solid var(--border);
+            padding-top: 1.25rem;
+            margin-top: 0.5rem;
+        }
+
+        .pipeline-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+        }
+
+        .btn-refresh {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            background: transparent;
+            border: 1px dashed rgba(124, 108, 248, 0.4);
+            border-radius: var(--radius-sm);
+            color: var(--accent-2);
+            font-family: inherit;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-refresh:hover:not(:disabled) {
+            background: rgba(124, 108, 248, 0.08);
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(124, 108, 248, 0.15);
+        }
+
+        .btn-refresh:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* ── Divider ── */
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 1rem 0;
+        }
+
+        /* ── Modal footer ── */
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        #save-status {
+            font-size: 0.82rem;
+            color: var(--green);
+            margin-right: auto;
+            font-weight: 600;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .btn-cancel {
+            padding: 0.6rem 1.1rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel:hover {
+            border-color: var(--border-hover);
+            color: var(--text);
+        }
+
+        .btn-save {
+            padding: 0.6rem 1.25rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            border: none;
+            border-radius: var(--radius-sm);
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 16px rgba(124, 108, 248, 0.3);
+        }
+
+        .btn-save:hover:not(:disabled) {
+            filter: brightness(1.1);
+            box-shadow: 0 6px 24px rgba(124, 108, 248, 0.45);
+            transform: translateY(-1px);
+        }
+
+        .btn-save:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--surface-2);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2a2a3a;
+        }
+
+        /* ── Model Settings (inside feed modal) ── */
+        .model-section {
+            border-top: 1px solid var(--border);
+            padding-top: 1.25rem;
+            margin-top: 0.25rem;
+        }
+
+        .model-section-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+        }
+
+        .provider-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .provider-card {
+            position: relative;
+        }
+
+        .provider-card input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .provider-card label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.6rem 0.3rem;
+            background: var(--surface-2);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-align: center;
+            user-select: none;
+        }
+
+        .provider-card label .provider-icon {
+            font-size: 1.1rem;
+            line-height: 1;
+        }
+
+        .provider-card input[type="radio"]:checked+label {
+            border-color: var(--accent);
+            background: rgba(124, 108, 248, 0.12);
+            color: var(--text);
+            box-shadow: 0 0 0 3px rgba(124, 108, 248, 0.18);
+        }
+
+        .provider-card label:hover {
+            border-color: var(--border-hover);
+            color: var(--text);
+        }
+
+        .input-group input[type="password"],
+        .input-group input[type="url"] {
+            width: 100%;
+            padding: 0.65rem 0.85rem;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+
+        .input-group input[type="password"]:focus,
+        .input-group input[type="url"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(124, 108, 248, 0.15);
+        }
+
+        .input-group input[type="password"]::placeholder,
+        .input-group input[type="url"]::placeholder {
+            color: var(--text-faint);
+        }
+
+        .model-feedback {
+            font-size: 0.78rem;
+            min-height: 1em;
+            margin-top: 0.35rem;
+        }
+
+        .model-feedback.ok {
+            color: var(--green);
+        }
+
+        .model-feedback.err {
+            color: var(--amber);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="orb"></div>
+
+    <div class="page">
+        <header>
+            <a href="/" class="logo">
+                <div class="logo-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <span class="logo-name">THE <span>LAYMAN</span></span>
+                    <span class="logo-motto">Res obscura, verba clara</span>
+                </div>
+            </a>
+            <nav class="nav">
+                <a href="/custom">Custom Search</a>
+                <button class="btn-settings" id="btn-settings">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3" />
+                        <path
+                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                    </svg>
+                    Customize Feed
+                </button>
+                <button id="logoutBtn" onclick="doLogout()"
+                    style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:#a0a0b0;cursor:pointer;padding:0.45rem 0.9rem;border-radius:8px;font-size:0.82rem;font-family:inherit;transition:all 0.2s;"
+                    onmouseover="this.style.color='#ef4444';this.style.borderColor='rgba(239,68,68,0.4)'"
+                    onmouseout="this.style.color='#a0a0b0';this.style.borderColor='rgba(255,255,255,0.15)'">Log
+                    Out</button>
+            </nav>
+        </header>
+
+        <div class="feed-header">
+            <div class="feed-header-top">
+                <h1 class="feed-title">Today's Discoveries</h1>
+                <span class="feed-date" id="feed-date-label"></span>
+            </div>
+            <p class="feed-subtitle">Top research papers ranked by real-world impact</p>
+        </div>
+
+        <div id="loading">
+            <div class="spinner"></div>
+            <span class="loading-text">Fetching today's papers…</span>
+        </div>
+        <div id="feed-list"></div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Customize Your Feed</h2>
+                <button class="close-btn" id="btn-close-settings">✕</button>
+            </div>
+
+            <div class="input-group">
+                <label>Research Fields</label>
+                <div class="chips-scroll" id="field-chips">
+
+                    <div class="chip-group">
+                        <div class="chip-group-label">Computer Science</div>
+                        <div class="chip-group-row">
+                            <div class="chip" data-value="cs.AI">Artificial Intelligence</div>
+                            <div class="chip" data-value="cs.LG">Machine Learning</div>
+                            <div class="chip" data-value="cs.CL">NLP</div>
+                            <div class="chip" data-value="cs.CV">Computer Vision</div>
+                            <div class="chip" data-value="cs.RO">Robotics</div>
+                            <div class="chip" data-value="cs.CR">Cryptography &amp; Security</div>
+                            <div class="chip" data-value="cs.SE">Software Engineering</div>
+                            <div class="chip" data-value="cs.HC">Human-Computer Interaction</div>
+                            <div class="chip" data-value="cs.DB">Databases</div>
+                            <div class="chip" data-value="cs.DC">Distributed Computing</div>
+                            <div class="chip" data-value="cs.DS">Data Structures &amp; Algorithms</div>
+                            <div class="chip" data-value="cs.IR">Information Retrieval</div>
+                            <div class="chip" data-value="cs.IT">Information Theory</div>
+                            <div class="chip" data-value="cs.NI">Networking &amp; Internet</div>
+                            <div class="chip" data-value="cs.PL">Programming Languages</div>
+                            <div class="chip" data-value="cs.OS">Operating Systems</div>
+                            <div class="chip" data-value="cs.AR">Hardware Architecture</div>
+                            <div class="chip" data-value="cs.GR">Graphics</div>
+                            <div class="chip" data-value="cs.GT">Game Theory</div>
+                            <div class="chip" data-value="cs.MM">Multimedia</div>
+                            <div class="chip" data-value="cs.MS">Mathematical Software</div>
+                            <div class="chip" data-value="cs.NA">Numerical Analysis</div>
+                            <div class="chip" data-value="cs.NE">Neural &amp; Evolutionary Comp.</div>
+                            <div class="chip" data-value="cs.SY">Systems &amp; Control</div>
+                            <div class="chip" data-value="cs.CY">Computers &amp; Society</div>
+                        </div>
+                    </div>
+
+                    <div class="chip-group">
+                        <div class="chip-group-label">Mathematics</div>
+                        <div class="chip-group-row">
+                            <div class="chip" data-value="math.ST">Statistics Theory</div>
+                            <div class="chip" data-value="math.OC">Optimization &amp; Control</div>
+                            <div class="chip" data-value="math.PR">Probability</div>
+                            <div class="chip" data-value="math.NA">Numerical Analysis</div>
+                            <div class="chip" data-value="math.CO">Combinatorics</div>
+                            <div class="chip" data-value="math.NT">Number Theory</div>
+                            <div class="chip" data-value="math.AG">Algebraic Geometry</div>
+                            <div class="chip" data-value="math.AP">Analysis of PDEs</div>
+                            <div class="chip" data-value="math.AT">Algebraic Topology</div>
+                            <div class="chip" data-value="math.DG">Differential Geometry</div>
+                            <div class="chip" data-value="math.DS">Dynamical Systems</div>
+                            <div class="chip" data-value="math.FA">Functional Analysis</div>
+                            <div class="chip" data-value="math.GR">Group Theory</div>
+                            <div class="chip" data-value="math.GT">Geometric Topology</div>
+                            <div class="chip" data-value="math.LO">Logic</div>
+                            <div class="chip" data-value="math.MP">Mathematical Physics</div>
+                            <div class="chip" data-value="math.QA">Quantum Algebra</div>
+                            <div class="chip" data-value="math.AC">Commutative Algebra</div>
+                            <div class="chip" data-value="math.RA">Rings &amp; Algebras</div>
+                            <div class="chip" data-value="math.SP">Spectral Theory</div>
+                        </div>
+                    </div>
+
+                    <div class="chip-group">
+                        <div class="chip-group-label">Statistics</div>
+                        <div class="chip-group-row">
+                            <div class="chip" data-value="stat.ML">Machine Learning</div>
+                            <div class="chip" data-value="stat.ME">Methodology</div>
+                            <div class="chip" data-value="stat.AP">Applications</div>
+                            <div class="chip" data-value="stat.CO">Computation</div>
+                            <div class="chip" data-value="stat.TH">Theory</div>
+                        </div>
+                    </div>
+
+                    <div class="chip-group">
+                        <div class="chip-group-label">Physics</div>
+                        <div class="chip-group-row">
+                            <div class="chip" data-value="quant-ph">Quantum Physics</div>
+                            <div class="chip" data-value="gr-qc">General Relativity &amp; QC</div>
+                            <div class="chip" data-value="hep-th">High Energy Physics – Theory</div>
+                            <div class="chip" data-value="hep-ph">High Energy Physics – Phenom.</div>
+                            <div class="chip" data-value="hep-ex">High Energy Physics – Exp.</div>
+                            <div class="chip" data-value="hep-lat">Lattice Field Theory</div>
+                            <div class="chip" data-value="physics.optics">Optics</div>
+                            <div class="chip" data-value="physics.flu-dyn">Fluid Dynamics</div>
+                            <div class="chip" data-value="physics.app-ph">Applied Physics</div>
+                            <div class="chip" data-value="physics.atom-ph">Atomic Physics</div>
+                            <div class="chip" data-value="physics.bio-ph">Biophysics</div>
+                            <div class="chip" data-value="physics.chem-ph">Chemical Physics</div>
+                            <div class="chip" data-value="physics.comp-ph">Computational Physics</div>
+                            <div class="chip" data-value="physics.data-an">Data Analysis</div>
+                            <div class="chip" data-value="physics.geo-ph">Geophysics</div>
+                            <div class="chip" data-value="physics.med-ph">Medical Physics</div>
+                            <div class="chip" data-value="physics.plasm-ph">Plasma Physics</div>
+                            <div class="chip" data-value="physics.soc-ph">Physics &amp; Society</div>
+                            <div class="chip" data-value="physics.space-ph">Space Physics</div>
+                            <div class="chip" data-value="physics.gen-ph">General Physics</div>
+                        </div>
+                    </div>
+
+                    <div class="chip-group">
+                        <div class="chip-group-label">Astrophysics</div>
+                        <div class="chip-group-row">
+                            <div class="chip" data-value="astro-ph.GA">Galaxies</div>
+                            <div class="chip" data-value="astro-ph.CO">Cosmology</div>
+                            <div class="chip" data-value="astro-ph.EP">Earth &amp; Planetary Science</div>
+                            <div class="chip" data-value="astro-ph.HE">High Energy Phenomena</div>
+                            <div class="chip" data-value="astro-ph.IM">Instrumentation &amp; Methods</div>
+                            <div class="chip" data-value="astro-ph.SR">Solar &amp; Stellar</div>
+                        </div>
+                    </div>
+
+                    <div class="chip-group">
+                        <div class="chip-group-label">Condensed Matter</div>
+                        <div class="chip-group-row">
+                            <div class="chip" data-value="cond-mat.supr-con">Superconductivity</div>
+                            <div class="chip" data-value="cond-mat.mes-hall">Mesoscale &amp; Nanoscale</div>
+                            <div class="chip" data-value="cond-mat.mtrl-sci">Materials Science</div>
+                            <div class="chip" data-value="cond-mat.str-el">Strongly Correlated Electrons</div>
+                            <div class="chip" data-value="cond-mat.soft">Soft Condensed Matter</div>
+                            <div class="chip" data-value="cond-mat.stat-mech">Statistical Mechanics</div>
+                            <div class="chip" data-value="cond-mat.quant-gas">Quantum Gases</div>
+                            <div class="chip" data-value="cond-mat.dis-nn">Disordered Systems &amp; Neural Nets</div>
+                        </div>
+                    </div>
+
+                    <div class="chip-group">
+                        <div class="chip-group-label">Biology &amp; Life Sciences</div>
+                        <div class="chip-group-row">
+                            <div class="chip" data-value="q-bio.BM">Biomolecules</div>
+                            <div class="chip" data-value="q-bio.CB">Cell Behavior</div>
+                            <div class="chip" data-value="q-bio.GN">Genomics</div>
+                            <div class="chip" data-value="q-bio.MN">Molecular Networks</div>
+                            <div class="chip" data-value="q-bio.NC">Neurons &amp; Cognition</div>
+                            <div class="chip" data-value="q-bio.PE">Populations &amp; Evolution</div>
+                            <div class="chip" data-value="q-bio.QM">Quantitative Methods</div>
+                            <div class="chip" data-value="q-bio.SC">Subcellular Processes</div>
+                            <div class="chip" data-value="q-bio.TO">Tissues &amp; Organs</div>
+                        </div>
+                    </div>
+
+                    <div class="chip-group">
+                        <div class="chip-group-label">Electrical Engineering &amp; Systems</div>
+                        <div class="chip-group-row">
+                            <div class="chip" data-value="eess.AS">Audio &amp; Speech</div>
+                            <div class="chip" data-value="eess.IV">Image &amp; Video Processing</div>
+                            <div class="chip" data-value="eess.SP">Signal Processing</div>
+                            <div class="chip" data-value="eess.SY">Systems &amp; Control</div>
+                        </div>
+                    </div>
+
+                    <div class="chip-group">
+                        <div class="chip-group-label">Economics &amp; Finance</div>
+                        <div class="chip-group-row">
+                            <div class="chip" data-value="econ.EM">Econometrics</div>
+                            <div class="chip" data-value="econ.GN">General Economics</div>
+                            <div class="chip" data-value="econ.TH">Economic Theory</div>
+                            <div class="chip" data-value="q-fin.CP">Computational Finance</div>
+                            <div class="chip" data-value="q-fin.EC">Economics</div>
+                            <div class="chip" data-value="q-fin.MF">Mathematical Finance</div>
+                            <div class="chip" data-value="q-fin.PM">Portfolio Management</div>
+                            <div class="chip" data-value="q-fin.RM">Risk Management</div>
+                            <div class="chip" data-value="q-fin.ST">Statistical Finance</div>
+                            <div class="chip" data-value="q-fin.TR">Trading &amp; Market Microstructure</div>
+                        </div>
+                    </div>
+
+                    <div class="chip-group">
+                        <div class="chip-group-label">Nonlinear Sciences</div>
+                        <div class="chip-group-row">
+                            <div class="chip" data-value="nlin.AO">Adaptation &amp; Self-Organizing</div>
+                            <div class="chip" data-value="nlin.CD">Chaotic Dynamics</div>
+                            <div class="chip" data-value="nlin.PS">Pattern Formation</div>
+                            <div class="chip" data-value="nlin.SI">Exactly Solvable &amp; Integrable Systems</div>
+                        </div>
+                    </div>
+
+                    <div class="chip-group">
+                        <div class="chip-group-label">Nuclear Science</div>
+                        <div class="chip-group-row">
+                            <div class="chip" data-value="nucl-ex">Nuclear Experiment</div>
+                            <div class="chip" data-value="nucl-th">Nuclear Theory</div>
+                        </div>
+                    </div>
+
+                </div>
+                <input type="hidden" id="target-fields" />
+                <span class="help-text">Select one or more categories. Scroll to see all.</span>
+            </div>
+
+            <div class="input-group">
+                <label>Priority Keywords</label>
+                <input type="text" id="priority-keywords"
+                    placeholder="e.g. transformers, protein folding, diffusion models" />
+                <span class="help-text">Boosts papers containing these terms. Comma-separated.</span>
+            </div>
+
+            <div class="input-group">
+                <label>Relevance Instruction</label>
+                <textarea id="relevance-instruction" placeholder="How do you define real-world impact?"></textarea>
+                <span class="help-text">Guides the AI scorer. Be as specific as you like.</span>
+            </div>
+
+            <div class="pipeline-section">
+                <div class="pipeline-label">Pipeline</div>
+                <button class="btn-refresh" id="btn-refresh-feed">🔄&nbsp; Refresh Feed Now</button>
+                <span class="help-text" style="text-align:center;margin-top:0.4rem">Saves your settings, scrapes arXiv,
+                    and re-scores &asymp; 1&ndash;2&nbsp;min.</span>
+            </div>
+
+            <!-- Model Settings Section -->
+            <div class="model-section">
+                <div class="model-section-label">Model Provider</div>
+                <div class="provider-grid">
+                    <div class="provider-card">
+                        <input type="radio" name="feedLlmProvider" id="feedProvLocal" value="local" checked />
+                        <label for="feedProvLocal"><span class="provider-icon">🖥️</span>Local</label>
+                    </div>
+                    <div class="provider-card">
+                        <input type="radio" name="feedLlmProvider" id="feedProvOpenai" value="openai" />
+                        <label for="feedProvOpenai"><span class="provider-icon">✦</span>OpenAI</label>
+                    </div>
+                    <div class="provider-card">
+                        <input type="radio" name="feedLlmProvider" id="feedProvAnthropic" value="anthropic" />
+                        <label for="feedProvAnthropic"><span class="provider-icon">☾</span>Claude</label>
+                    </div>
+                    <div class="provider-card">
+                        <input type="radio" name="feedLlmProvider" id="feedProvGoogle" value="google" />
+                        <label for="feedProvGoogle"><span class="provider-icon">✦</span>Google AI</label>
+                    </div>
+                </div>
+
+                <div id="feedApiKeyGroup" style="display:none" class="input-group">
+                    <label for="feedApiKey">API KEY</label>
+                    <input type="password" id="feedApiKey" placeholder="Paste your API key here…" autocomplete="off" />
+                </div>
+
+                <div class="input-group">
+                    <label for="feedModelName">MODEL NAME</label>
+                    <input type="text" id="feedModelName" placeholder="e.g. llama3.2, gpt-4o, gemini-2.0-flash" />
+                </div>
+
+                <div id="feedBaseUrlGroup" class="input-group">
+                    <label for="feedBaseUrl">OLLAMA BASE URL</label>
+                    <input type="url" id="feedBaseUrl" placeholder="http://127.0.0.1:11434" />
+                </div>
+
+                <div class="model-feedback" id="feedModelFeedback"></div>
+            </div>
+
+            <div class="modal-footer">
+                <span id="save-status">✅ Saved!</span>
+                <button class="btn-cancel" id="btn-cancel-settings">Cancel</button>
+                <button class="btn-save" id="btn-save-settings">Save Preferences</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ── Date label ─────────────────────────────────────────────────
+        const today = new Date();
+        document.getElementById('feed-date-label').textContent =
+            today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+        async function doLogout() {
+            await fetch('/api/logout', { method: 'POST' }).catch(() => { });
+            window.location.href = '/login.html';
+        }
+
+        // ── DOM refs ────────────────────────────────────────────────────
+        const feedList = document.getElementById('feed-list');
+        const loadingEl = document.getElementById('loading');
+        const modal = document.getElementById('settings-modal');
+        const btnSettings = document.getElementById('btn-settings');
+        const btnClose = document.getElementById('btn-close-settings');
+        const btnCancel = document.getElementById('btn-cancel-settings');
+        const btnSave = document.getElementById('btn-save-settings');
+        const btnRefresh = document.getElementById('btn-refresh-feed');
+
+        // ── Modal open/close ────────────────────────────────────────────
+        function openModal() { modal.classList.add('active'); loadSettings(); }
+        function closeModal() { modal.classList.remove('active'); }
+
+        btnSettings.addEventListener('click', openModal);
+        btnClose.addEventListener('click', closeModal);
+        btnCancel.addEventListener('click', closeModal);
+        modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+        // ── Chips ───────────────────────────────────────────────────────
+        const fieldChips = document.querySelectorAll('#field-chips .chip');
+        fieldChips.forEach(chip => {
+            chip.addEventListener('click', () => chip.classList.toggle('active'));
+        });
+
+        function getSelectedFields() {
+            return Array.from(document.querySelectorAll('#field-chips .chip.active'))
+                .map(c => c.dataset.value);
+        }
+
+        function setSelectedFields(fields) {
+            fieldChips.forEach(chip => {
+                chip.classList.toggle('active', fields.includes(chip.dataset.value));
+            });
+        }
+
+        // ── Settings CRUD ───────────────────────────────────────────────
+        async function loadSettings() {
+            try {
+                const res = await fetch('/api/settings');
+                if (res.ok) {
+                    const d = await res.json();
+                    setSelectedFields(d.target_fields || []);
+                    document.getElementById('priority-keywords').value = (d.priority_keywords || []).join(', ');
+                    document.getElementById('relevance-instruction').value = d.relevance_instruction || '';
+                }
+            } catch (e) { console.error('loadSettings', e); }
+        }
+
+        async function persistSettings() {
+            return fetch('/api/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: 'default',
+                    target_fields: getSelectedFields(),
+                    priority_keywords: document.getElementById('priority-keywords').value.split(',').map(s => s.trim()).filter(Boolean),
+                    relevance_instruction: document.getElementById('relevance-instruction').value.trim()
+                })
+            });
+        }
+
+        btnSave.addEventListener('click', async () => {
+            btnSave.disabled = true;
+            btnSave.textContent = 'Saving…';
+            try {
+                const res = await persistSettings();
+                if (res.ok) {
+                    const status = document.getElementById('save-status');
+                    status.style.display = 'inline';
+                    setTimeout(() => { status.style.display = 'none'; closeModal(); }, 1000);
+                }
+            } catch (e) { alert('Failed to save settings.'); }
+            finally { btnSave.disabled = false; btnSave.textContent = 'Save Preferences'; }
+        });
+
+        // ── Refresh ──────────────────────────────────────────────────────
+        btnRefresh.addEventListener('click', async () => {
+            if (!confirm('Save current settings and refresh the feed? (~1–2 min)')) return;
+            btnRefresh.disabled = true;
+            btnRefresh.textContent = 'Saving settings…';
+            try {
+                const saveRes = await persistSettings();
+                if (!saveRes.ok) { alert('Failed to save settings.'); return; }
+                btnRefresh.textContent = 'Refreshing feed… (~1–2 min)';
+                const res = await fetch('/api/trigger_feed_update', { method: 'POST' });
+                if (res.ok) { loadFeed(); closeModal(); }
+                else { alert('Feed refresh failed.'); }
+            } catch (e) { alert('Error triggering update.'); }
+            finally { btnRefresh.disabled = false; btnRefresh.textContent = '🔄\u00a0 Refresh Feed Now'; }
+        });
+
+        // ── Feed rendering ───────────────────────────────────────────────
+        function scoreClass(s) {
+            const n = parseInt(s, 10);
+            if (n >= 8) return 'score-high';
+            if (n >= 5) return 'score-mid';
+            return 'score-low';
+        }
+
+        async function loadFeed() {
+            loadingEl.style.display = 'flex';
+            feedList.innerHTML = '';
+            try {
+                const dateStr = new Date().toISOString().split('T')[0];
+                const res = await fetch(`/api/daily_feed?date=${dateStr}`);
+                if (!res.ok) {
+                    if (res.status === 404) {
+                        loadingEl.innerHTML = `
+              <div class="empty-state">
+                <div class="icon">🔬</div>
+                <h3>No papers for today yet</h3>
+                <p>Open Settings and click <em>Refresh Feed Now</em> to start.</p>
+              </div>`;
+                        return;
+                    }
+                    throw new Error(`HTTP ${res.status}`);
+                }
+                const data = await res.json();
+                loadingEl.style.display = 'none';
+                if (!data.items?.length) {
+                    feedList.innerHTML = '<div class="empty-state"><div class="icon">🔬</div><h3>No papers found</h3><p>Try different field settings.</p></div>';
+                    return;
+                }
+
+                feedList.innerHTML = data.items.map((item, i) => {
+                    const buzz = item.buzz_score || 0;
+                    const buzzBadge = buzz >= 5
+                        ? `<span class="badge-buzz ${buzz >= 7 ? 'buzz-hot' : 'buzz-warm'}">🔥 Trending</span>`
+                        : '';
+                    return `
+          <article class="paper-card">
+            <div class="card-header">
+              <div style="flex:1;min-width:0">
+                <div class="card-rank">#${String(i + 1).padStart(2, '0')}</div>
+                <h2 class="card-title">${item.title}</h2>
+              </div>
+              <div class="card-badges">
+                <span class="badge badge-field">${item.field}</span>
+                <span class="badge badge-score ${scoreClass(item.impact_score)}">⚡ ${item.impact_score}/10</span>
+                ${buzzBadge}
+              </div>
+            </div>
+            <p class="card-abstract">${item.abstract_preview}</p>
+            <div class="card-footer">
+              <a href="/view?arxiv_url=${encodeURIComponent(item.paper_id)}" class="btn-breakdown">
+                View Breakdown
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+              </a>
+            </div>
+          </article>
+        `;
+                }).join('');
+            } catch (e) {
+                console.error(e);
+                loadingEl.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><h3>Failed to load feed</h3><p>Check the server is running.</p></div>';
+            }
+        }
+
+        loadFeed();
+
+        // ── Model Settings in Feed Modal ─────────────────────────────────
+        (function initFeedModelSettings() {
+            const apiGrp = document.getElementById('feedApiKeyGroup');
+            const baseGrp = document.getElementById('feedBaseUrlGroup');
+            const apiKey = document.getElementById('feedApiKey');
+            const modelNm = document.getElementById('feedModelName');
+            const baseUrl = document.getElementById('feedBaseUrl');
+            const fb = document.getElementById('feedModelFeedback');
+
+            let currentFeedProvider = 'local';
+            let feedCfg = {
+                openai_key: '', anthropic_key: '', google_key: '',
+                openai_model: '', anthropic_model: '', google_model: '',
+                local_model: '', local_base_url: ''
+            };
+
+            const PLACEHOLDERS = {
+                local: 'e.g. llama3.2, qwen3, mistral',
+                openai: 'e.g. gpt-4o, gpt-4o-mini, o3',
+                anthropic: 'e.g. claude-3-5-sonnet-20241022, claude-3-opus-20240229',
+                google: 'e.g. gemini-2.0-flash, gemini-1.5-pro',
+            };
+
+            function syncFeedToConfig() {
+                if (currentFeedProvider === 'local') {
+                    feedCfg.local_model = modelNm.value;
+                    feedCfg.local_base_url = baseUrl.value;
+                } else {
+                    feedCfg[`${currentFeedProvider}_model`] = modelNm.value;
+                    feedCfg[`${currentFeedProvider}_key`] = apiKey.value;
+                }
+            }
+
+            function syncFeedFromConfig(provider) {
+                if (provider === 'local') {
+                    modelNm.value = feedCfg.local_model || '';
+                    baseUrl.value = feedCfg.local_base_url || '';
+                } else {
+                    modelNm.value = feedCfg[`${provider}_model`] || '';
+                    apiKey.value = feedCfg[`${provider}_key`] || '';
+                }
+            }
+
+            function syncFeedProviderUI(provider) {
+                syncFeedToConfig();
+                currentFeedProvider = provider;
+                syncFeedFromConfig(provider);
+
+                const isLocal = provider === 'local';
+                apiGrp.style.display = isLocal ? 'none' : 'block';
+                baseGrp.style.display = isLocal ? 'block' : 'none';
+                modelNm.placeholder = PLACEHOLDERS[provider] || '';
+            }
+
+            document.querySelectorAll('input[name="feedLlmProvider"]').forEach(r => {
+                r.addEventListener('change', () => syncFeedProviderUI(r.value));
+            });
+
+            const origOpen = openModal;
+            window.openModal = async function () {
+                origOpen();
+                try {
+                    const res = await fetch('/api/llm_settings');
+                    if (res.status === 401) { window.location.href = '/login.html'; return; }
+                    if (!res.ok) return;
+                    const s = await res.json();
+                    feedCfg = Object.assign(feedCfg, s);
+                    const defaultProv = s.provider || 'local';
+                    const radio = document.querySelector(`input[name="feedLlmProvider"][value="${defaultProv}"]`);
+                    if (radio) radio.checked = true;
+                    currentFeedProvider = defaultProv;
+                    syncFeedFromConfig(defaultProv);
+                    syncFeedProviderUI(defaultProv);
+                } catch (e) { /* ignore */ }
+            };
+            btnSettings.removeEventListener('click', openModal);
+            btnSettings.addEventListener('click', window.openModal);
+
+            const origBtnSaveHandler = btnSave.onclick; // preserved if needed elsewhere
+            btnSave.addEventListener('click', async () => {
+                syncFeedToConfig();
+                const provider = document.querySelector('input[name="feedLlmProvider"]:checked')?.value || 'local';
+                fb.textContent = '';
+                fb.className = 'model-feedback';
+                try {
+                    const r = await fetch('/api/llm_settings', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ provider, ...feedCfg }),
+                    });
+                    if (r.ok) {
+                        fb.textContent = '✓ Model settings saved';
+                        fb.className = 'model-feedback ok';
+                    } else if (r.status === 401) {
+                        window.location.href = '/login.html';
+                    } else {
+                        fb.textContent = '✗ Failed to save model settings';
+                        fb.className = 'model-feedback err';
+                    }
+                } catch (e) {
+                    fb.textContent = '✗ Network error';
+                    fb.className = 'model-feedback err';
+                }
+            }, { capture: false });
+
+            // Initialize UI defaults purely visually
+            syncFeedProviderUI(document.querySelector('input[name="feedLlmProvider"]:checked')?.value || 'local');
+        }());
+    </script>
+</body>
+
+</html>

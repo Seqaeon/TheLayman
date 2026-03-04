@@ -1,0 +1,1181 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>THE LAYMAN — Paper Breakdown</title>
+  <meta name="description"
+    content="Academic papers explained in plain language. Twitter summaries, deep dives, and real-world impact analysis." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cinzel:wght@400;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --surface-2: #1c1c28;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(255, 255, 255, 0.18);
+      --text: #e8e8f0;
+      --text-muted: #8888a8;
+      --text-faint: #55556a;
+      --accent: #7c6cf8;
+      --accent-2: #a78bfa;
+      --accent-glow: rgba(124, 108, 248, 0.25);
+      --green: #22d3a0;
+      --amber: #f59e0b;
+      --radius: 14px;
+      --radius-sm: 8px;
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .orb {
+      position: fixed;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 500px;
+      background: radial-gradient(ellipse at center, rgba(124, 108, 248, 0.15) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 1.25rem 5rem;
+    }
+
+    /* ── Header ── */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.75rem 0 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .logo-name {
+      font-family: 'Cinzel', serif;
+      font-size: 1.0rem;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: 0.14em;
+      line-height: 1.15;
+    }
+
+    .logo-name span {
+      color: var(--accent-2);
+    }
+
+    .logo-motto {
+      font-size: 0.6rem;
+      font-style: italic;
+      color: var(--text-faint);
+      letter-spacing: 0.04em;
+      line-height: 1.2;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      padding: 0.45rem 0.85rem;
+      border-radius: var(--radius-sm);
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .nav a:hover {
+      color: var(--text);
+      background: var(--surface-2);
+    }
+
+    /* ── Input form section ── */
+    .input-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      margin: 2rem 0;
+      animation: fadeInUp 0.4s ease both;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      color: var(--text);
+    }
+
+    .input-group {
+      margin-bottom: 0.9rem;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+
+    .input-group input[type="text"],
+    .input-group input[type="url"],
+    .input-group input[type="file"] {
+      width: 100%;
+      padding: 0.65rem 0.85rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.9rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+
+    .input-group input[type="file"] {
+      cursor: pointer;
+    }
+
+    .input-group input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(124, 108, 248, 0.15);
+    }
+
+    .input-group input:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .input-group input::placeholder {
+      color: var(--text-faint);
+    }
+
+    .or-divider {
+      text-align: center;
+      color: var(--text-faint);
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin: 0.5rem 0;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      accent-color: var(--accent);
+      width: 15px;
+      height: 15px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      margin-top: 1rem;
+      padding: 0.78rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      border: none;
+      border-radius: var(--radius-sm);
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: -0.01em;
+      box-shadow: 0 4px 20px rgba(124, 108, 248, 0.35);
+    }
+
+    .btn-submit:hover:not(:disabled) {
+      filter: brightness(1.1);
+      box-shadow: 0 6px 28px rgba(124, 108, 248, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .hint {
+      font-size: 0.78rem;
+      color: var(--text-faint);
+      margin-top: 0.5rem;
+      text-align: center;
+    }
+
+    /* ── Handoff / loading state ── */
+    #handoffInfo {
+      text-align: center;
+      padding: 3rem 0 1rem;
+      animation: fadeInUp 0.4s ease both;
+    }
+
+    .handoff-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, var(--text) 30%, var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .handoff-sub {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover {
+      color: var(--text);
+    }
+
+    /* ── Loading spinner ── */
+    #loading {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.5rem;
+    }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--surface-2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .loading-text {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    /* ── Status bar ── */
+    .meta {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.55rem 0.9rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    /* ── Explanation sections ── */
+    .exp-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 0.75rem;
+      animation: fadeInUp 0.4s ease both;
+      transition: border-color 0.2s;
+    }
+
+    .exp-section:hover {
+      border-color: var(--border-hover);
+    }
+
+    .exp-section h2 {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent-2);
+      margin-bottom: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .exp-section h2 .icon {
+      font-size: 1rem;
+    }
+
+    .prose-block p {
+      color: var(--text-muted);
+      font-size: 0.93rem;
+      line-height: 1.75;
+      margin-bottom: 0.85rem;
+    }
+
+    .prose-block p:last-child {
+      margin-bottom: 0;
+    }
+
+    .deep-section-label {
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* ── Impact list ── */
+    #impact {
+      list-style: none;
+      padding: 0;
+    }
+
+    #impact li {
+      display: flex;
+      gap: 0.65rem;
+      padding: 0.65rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    #impact li:last-child {
+      border-bottom: none;
+    }
+
+    #impact li b {
+      color: var(--text);
+      min-width: 120px;
+      flex-shrink: 0;
+    }
+
+    /* ── Paper link ── */
+    #paperLink {
+      color: var(--accent-2);
+      text-decoration: none;
+      font-size: 0.88rem;
+      word-break: break-all;
+      transition: color 0.2s;
+    }
+
+    #paperLink:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    /* ── Debug panel ── */
+    details {
+      margin-top: 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+
+    details summary {
+      padding: 0.7rem 1rem;
+      cursor: pointer;
+      font-size: 0.82rem;
+      color: var(--text-faint);
+      font-weight: 500;
+      background: var(--surface-2);
+      user-select: none;
+      list-style: none;
+    }
+
+    details summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details summary::before {
+      content: '▶ ';
+      font-size: 0.7rem;
+    }
+
+    details[open] summary::before {
+      content: '▼ ';
+    }
+
+    details pre {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      white-space: pre-wrap;
+      background: #0d0d14;
+      padding: 1rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      overflow-x: auto;
+    }
+
+    details h3 {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-faint);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.7rem 1rem 0.3rem;
+      background: #0d0d14;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--surface-2);
+      border-radius: 3px;
+    }
+
+    /* ── Model Settings Panel ── */
+    .model-settings-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin: 2rem 0 0.5rem;
+      overflow: hidden;
+      animation: fadeInUp 0.4s ease both;
+    }
+
+    .model-settings-toggle {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: color 0.2s, background 0.2s;
+      text-align: left;
+      letter-spacing: 0.01em;
+    }
+
+    .model-settings-toggle:hover {
+      background: var(--surface-2);
+      color: var(--text);
+    }
+
+    .model-settings-toggle .toggle-label {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    .model-settings-toggle .toggle-label .badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.18rem 0.55rem;
+      border-radius: 20px;
+      background: var(--surface-2);
+      color: var(--text-faint);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border: 1px solid var(--border);
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .model-settings-toggle .chevron {
+      font-size: 0.7rem;
+      transition: transform 0.25s ease;
+    }
+
+    .model-settings-toggle[aria-expanded="true"] .chevron {
+      transform: rotate(180deg);
+    }
+
+    .model-settings-body {
+      padding: 0 1.5rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: none;
+    }
+
+    .model-settings-body.open {
+      display: block;
+    }
+
+    /* Provider radio grid */
+    .provider-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.6rem;
+      margin: 1.25rem 0 1rem;
+    }
+
+    .provider-card {
+      position: relative;
+    }
+
+    .provider-card input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .provider-card label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.7rem 0.4rem;
+      background: var(--surface-2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-align: center;
+      user-select: none;
+    }
+
+    .provider-card label .provider-icon {
+      font-size: 1.25rem;
+      line-height: 1;
+    }
+
+    .provider-card input[type="radio"]:checked+label {
+      border-color: var(--accent);
+      background: rgba(124, 108, 248, 0.12);
+      color: var(--text);
+      box-shadow: 0 0 0 3px rgba(124, 108, 248, 0.2);
+    }
+
+    .provider-card label:hover {
+      border-color: var(--border-hover);
+      color: var(--text);
+    }
+
+    .model-settings-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .model-settings-fields .input-group input[type="text"],
+    .model-settings-fields .input-group input[type="password"],
+    .model-settings-fields .input-group input[type="url"] {
+      width: 100%;
+      padding: 0.65rem 0.85rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.9rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+
+    .model-settings-fields .input-group input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(124, 108, 248, 0.15);
+    }
+
+    .model-settings-fields .input-group input::placeholder {
+      color: var(--text-faint);
+    }
+
+    .btn-save-settings {
+      margin-top: 1rem;
+      padding: 0.65rem 1.5rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-save-settings:hover {
+      border-color: var(--accent);
+      color: var(--accent-2);
+      background: rgba(124, 108, 248, 0.08);
+    }
+
+    .settings-feedback {
+      margin-top: 0.55rem;
+      font-size: 0.8rem;
+      min-height: 1.2em;
+      transition: color 0.2s;
+    }
+
+    .settings-feedback.ok {
+      color: var(--green);
+    }
+
+    .settings-feedback.err {
+      color: var(--amber);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="orb"></div>
+
+  <div class="page">
+    <header>
+      <a href="/" class="logo">
+        <div class="logo-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-name">THE <span>LAYMAN</span></span>
+          <span class="logo-motto">Res obscura, verba clara</span>
+        </div>
+      </a>
+      <nav class="nav">
+        <a href="/">← Discovery Feed</a>
+        <a href="/custom">Custom Search</a>
+        <button id="logoutBtn" onclick="doLogout()"
+          style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:#a0a0b0;cursor:pointer;padding:0.45rem 0.9rem;border-radius:8px;font-size:0.82rem;font-family:inherit;transition:all 0.2s;"
+          onmouseover="this.style.color='#ef4444';this.style.borderColor='rgba(239,68,68,0.4)'"
+          onmouseout="this.style.color='#a0a0b0';this.style.borderColor='rgba(255,255,255,0.15)'">Log Out</button>
+      </nav>
+    </header>
+
+    <!-- Model Settings panel -->
+    <div class="model-settings-panel" id="modelSettingsPanel">
+      <button class="model-settings-toggle" id="modelSettingsToggle" aria-expanded="false"
+        aria-controls="modelSettingsBody">
+        <span class="toggle-label">
+          ⚙ Model Settings
+          <span class="badge" id="modelBadge">local</span>
+        </span>
+        <span class="chevron">▼</span>
+      </button>
+
+      <div class="model-settings-body" id="modelSettingsBody">
+        <div class="provider-grid">
+          <div class="provider-card">
+            <input type="radio" name="llmProvider" id="provLocal" value="local" checked />
+            <label for="provLocal"><span class="provider-icon">🖥️</span>Local (Ollama)</label>
+          </div>
+          <div class="provider-card">
+            <input type="radio" name="llmProvider" id="provOpenai" value="openai" />
+            <label for="provOpenai"><span class="provider-icon">✦</span>OpenAI</label>
+          </div>
+          <div class="provider-card">
+            <input type="radio" name="llmProvider" id="provAnthropic" value="anthropic" />
+            <label for="provAnthropic"><span class="provider-icon">☾</span>Claude</label>
+          </div>
+          <div class="provider-card">
+            <input type="radio" name="llmProvider" id="provGoogle" value="google" />
+            <label for="provGoogle"><span class="provider-icon">✦</span>Google AI</label>
+          </div>
+        </div>
+
+        <div class="model-settings-fields">
+          <!-- Cloud: API Key -->
+          <div class="input-group" id="settingsApiKeyGroup" style="display:none">
+            <label for="settingsApiKey">API KEY</label>
+            <input type="password" id="settingsApiKey" placeholder="Paste your API key here…" autocomplete="off" />
+          </div>
+
+          <!-- Model name (all providers) -->
+          <div class="input-group">
+            <label for="settingsModelName">MODEL NAME</label>
+            <input type="text" id="settingsModelName" placeholder="e.g. llama3.2, gpt-4o, claude-3-5-sonnet-20241022" />
+          </div>
+
+          <!-- Local only: Ollama base URL -->
+          <div class="input-group" id="settingsBaseUrlGroup">
+            <label for="settingsBaseUrl">OLLAMA BASE URL</label>
+            <input type="url" id="settingsBaseUrl" placeholder="http://127.0.0.1:11434" />
+          </div>
+        </div>
+
+        <button class="btn-save-settings" id="saveSettingsBtn">Save Settings</button>
+        <div class="settings-feedback" id="settingsFeedback"></div>
+      </div>
+    </div>
+
+    <!-- Input section (shown for manual use, hidden on auto-handoff) -->
+    <section class="input-section" id="inputSection">
+      <h2 class="section-title">Explain a Paper</h2>
+
+      <div class="input-group">
+        <label for="arxiv">arXiv URL</label>
+        <input id="arxiv" type="url" placeholder="https://arxiv.org/abs/2401.00001" />
+      </div>
+      <div class="or-divider">— or —</div>
+      <div class="input-group">
+        <label for="doi">DOI</label>
+        <input id="doi" type="text" placeholder="10.1234/example" />
+      </div>
+      <div class="or-divider">— or —</div>
+      <div class="input-group">
+        <label for="pdf">Upload PDF</label>
+        <input id="pdf" type="file" accept="application/pdf" />
+      </div>
+
+      <label class="checkbox-row">
+        <input id="regenerate" type="checkbox" checked />
+        Force regenerate (ignore cached results)
+      </label>
+      <button class="btn-submit" id="submit">Generate Explanation</button>
+      <p class="hint">Fill in only one field — the others will lock automatically.</p>
+    </section>
+
+    <!-- Nav links (hidden on auto-handoff) -->
+    <div id="manualLinkContainer" style="text-align:center;margin: -0.5rem 0 1.5rem; display:none;"></div>
+
+    <!-- Handoff auto-load state (shown when navigating from feed) -->
+    <div id="handoffInfo" hidden>
+      <h2 class="handoff-title" id="handoffTitle">Loading your discovery…</h2>
+      <p class="handoff-sub">Generating a plain-language breakdown for you.</p>
+      <a href="/" class="back-link">← Back to Discovery Feed</a>
+    </div>
+
+    <!-- Loading indicator -->
+    <div id="loading">
+      <div class="spinner"></div>
+      <span class="loading-text" id="loading-text">Processing paper…</span>
+    </div>
+
+    <!-- Results -->
+    <div class="meta" id="meta">Status: idle</div>
+
+    <section class="exp-section" style="animation-delay:0.05s">
+      <h2><span class="icon">🐦</span> Twitter Summary</h2>
+      <div class="prose-block" id="twitter">
+        <p style="color:var(--text-faint)">—</p>
+      </div>
+    </section>
+
+    <section class="exp-section" style="animation-delay:0.1s">
+      <h2><span class="icon">☕</span> Coffee Chat</h2>
+      <div class="prose-block" id="coffee">
+        <p style="color:var(--text-faint)">—</p>
+      </div>
+    </section>
+
+    <section class="exp-section" style="animation-delay:0.15s">
+      <h2><span class="icon">🔬</span> Deep Dive</h2>
+      <div class="prose-block" id="deep">
+        <p style="color:var(--text-faint)">—</p>
+      </div>
+    </section>
+
+    <section class="exp-section" style="animation-delay:0.2s">
+      <h2><span class="icon">💡</span> Why This Matters</h2>
+      <ul id="impact">
+        <li><b>Who it affects:</b> —</li>
+        <li><b>Problems solved:</b> —</li>
+        <li><b>Timeline:</b> —</li>
+        <li><b>Limitations:</b> —</li>
+      </ul>
+    </section>
+
+    <section class="exp-section" style="animation-delay:0.25s">
+      <h2><span class="icon">📄</span> Original Paper</h2>
+      <a id="paperLink" href="#">—</a>
+    </section>
+
+    <details>
+      <summary>Model debug · raw generation &amp; prompt</summary>
+      <h3>Model Used</h3>
+      <pre id="modelUsed">—</pre>
+      <h3>Raw Model Output</h3>
+      <pre id="rawModel">—</pre>
+      <h3>Prompt Used</h3>
+      <pre id="promptUsed">—</pre>
+    </details>
+  </div>
+
+  <script>
+    const submitBtn = document.getElementById('submit');
+    const doiInput = document.getElementById('doi');
+    const arxivInput = document.getElementById('arxiv');
+    const pdfInput = document.getElementById('pdf');
+    const loadingEl = document.getElementById('loading');
+    const loadingTxt = document.getElementById('loading-text');
+
+    // ── Mutual exclusion ─────────────────────────────────────────────
+    function syncLock() {
+      const hasArxiv = arxivInput.value.trim().length > 0;
+      const hasDoi = doiInput.value.trim().length > 0;
+      const hasPdf = pdfInput.files && pdfInput.files.length > 0;
+      doiInput.disabled = hasArxiv || hasPdf;
+      arxivInput.disabled = hasDoi || hasPdf;
+      pdfInput.disabled = hasArxiv || hasDoi;
+    }
+
+    arxivInput.addEventListener('input', syncLock);
+    doiInput.addEventListener('input', syncLock);
+    pdfInput.addEventListener('change', syncLock);
+    syncLock();
+
+    // ── Prose rendering ──────────────────────────────────────────────
+    const SECTION_LABELS = [
+      'Context', 'How It Works', 'Evidence', 'Assumptions', 'Limitations',
+      'The Problem', 'The Analogy', 'The Solution', 'Real-world impact', 'Real-World Impact',
+    ];
+    const LABEL_SPLIT_RE = new RegExp(
+      `(?=(?:${SECTION_LABELS.map(l => l.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')}):?)`, 'g'
+    );
+
+    function renderProse(text, container, { boldLabel = false } = {}) {
+      if (!text || text.trim().toLowerCase() === 'unknown') {
+        container.innerHTML = '<p style="color:var(--text-faint)">Not available for this paper.</p>';
+        return;
+      }
+      let chunks = text.split(/\n\n+/).map(c => c.trim()).filter(Boolean);
+      if (chunks.length === 1) chunks = text.split(LABEL_SPLIT_RE).map(c => c.trim()).filter(Boolean);
+      if (chunks.length === 1) {
+        // Fallback for LLMs that write "Para 1 text. " instead of using newlines
+        chunks = text.split(/(?:^|\s+)Para(?:graph)?\s*\d+(?:\s*text)?[.\-:]?\s+/i).map(c => c.trim()).filter(Boolean);
+      }
+      container.innerHTML = chunks.map(chunk => {
+        let inner = escapeHtml(chunk);
+        if (boldLabel) {
+          const labelRe = new RegExp(`^(${SECTION_LABELS.join('|')}):?`);
+          inner = inner.replace(labelRe, '<span class="deep-section-label">$1</span>');
+        }
+        return `<p>${inner}</p>`;
+      }).join('');
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // ── Submit handler ────────────────────────────────────────────────
+    submitBtn.addEventListener('click', async () => {
+      const doi = doiInput.value.trim();
+      const arxiv = arxivInput.value.trim();
+      const pdf = pdfInput.files[0];
+      const regen = document.getElementById('regenerate').checked;
+
+      loadingEl.style.display = 'flex';
+      submitBtn.disabled = true;
+      document.getElementById('meta').textContent = 'Status: processing…';
+
+      const msgs = [
+        'Processing paper…',
+        'Extracting text & formatting…',
+        'Thinking about explanation…',
+        'Generating deep dive…',
+        'Almost there — large models can take 3–5 minutes…',
+      ];
+      let tIdx = 0;
+      loadingTxt.textContent = msgs[0];
+      const ticker = setInterval(() => { loadingTxt.textContent = msgs[(++tIdx) % msgs.length]; }, 7000);
+
+      try {
+        let res;
+        if (pdf) {
+          const fd = new FormData();
+          fd.append('pdf', pdf);
+          res = await fetch(`/api/explain/pdf?regenerate=${regen}`, { method: 'POST', body: fd });
+        } else {
+          res = await fetch('/api/explain', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ doi: doi || null, arxiv_url: arxiv || null, regenerate: regen }),
+          });
+        }
+
+        const data = await res.json();
+        if (!res.ok) {
+          document.getElementById('meta').textContent = `Error: ${data.detail || 'request failed'}`;
+          return;
+        }
+
+        const e = data.explanation || {};
+        const why = e.why_it_matters || {};
+
+        document.getElementById('meta').textContent =
+          `Status: ${data.cached ? 'cached ✓' : 'fresh ✓'} | sources: ${(e.sources_used || []).join(', ') || 'unknown'}`;
+
+        renderProse(e.twitter_summary, document.getElementById('twitter'));
+        renderProse(e.coffee_chat, document.getElementById('coffee'), { boldLabel: true });
+        renderProse(e.deep_dive, document.getElementById('deep'), { boldLabel: true });
+
+        document.getElementById('impact').innerHTML = [
+          ['Who it affects', why.who_it_affects],
+          ['Problems solved', why.problems_solved],
+          ['Timeline', why.timeline_of_impact],
+          ['Limitations', why.limitations],
+        ].map(([k, v]) => `<li><b>${k}:</b> ${escapeHtml(v || '—')}</li>`).join('');
+
+        const link = document.getElementById('paperLink');
+        link.href = e.original_paper_link || '#';
+        link.textContent = e.original_paper_link || '—';
+
+        document.getElementById('modelUsed').textContent = data.runtime_model || '—';
+        const raw = data.raw_model_output;
+        document.getElementById('rawModel').textContent = typeof raw === 'string' ? raw : JSON.stringify(raw, null, 2);
+        document.getElementById('promptUsed').textContent = data.prompt_used || '—';
+
+      } finally {
+        clearInterval(ticker);
+        loadingEl.style.display = 'none';
+        submitBtn.disabled = false;
+        syncLock();
+      }
+    });
+
+    // ── Auto-handoff from URL params ─────────────────────────────────
+    function handleParams() {
+      const params = new URLSearchParams(window.location.search);
+      const arxivParam = params.get('arxiv_url');
+      const doiParam = params.get('doi');
+
+      if (arxivParam || doiParam) {
+        document.getElementById('inputSection').hidden = true;
+        document.getElementById('manualLinkContainer').hidden = true;
+        document.getElementById('handoffInfo').hidden = false;
+
+        if (arxivParam) arxivInput.value = arxivParam;
+        if (doiParam) doiInput.value = doiParam;
+
+        syncLock();
+        setTimeout(() => submitBtn.click(), 500);
+      }
+    }
+
+    async function doLogout() {
+      await fetch('/api/logout', { method: 'POST' }).catch(() => { });
+      window.location.href = '/login.html';
+    }
+
+    handleParams();
+
+    // ── Model Settings ────────────────────────────────────────────────
+    (function initModelSettings() {
+      const toggle = document.getElementById('modelSettingsToggle');
+      const body = document.getElementById('modelSettingsBody');
+      const badge = document.getElementById('modelBadge');
+      const apiGrp = document.getElementById('settingsApiKeyGroup');
+      const baseGrp = document.getElementById('settingsBaseUrlGroup');
+      const apiKey = document.getElementById('settingsApiKey');
+      const modelNm = document.getElementById('settingsModelName');
+      const baseUrl = document.getElementById('settingsBaseUrl');
+      const saveBtn = document.getElementById('saveSettingsBtn');
+      const feedback = document.getElementById('settingsFeedback');
+
+      let currentProvider = 'local';
+      let cfg = {
+        openai_key: '', anthropic_key: '', google_key: '',
+        openai_model: '', anthropic_model: '', google_model: '',
+        local_model: '', local_base_url: ''
+      };
+
+      const PLACEHOLDERS = {
+        local: 'e.g. llama3.2, qwen3, mistral',
+        openai: 'e.g. gpt-4o, gpt-4o-mini, o3',
+        anthropic: 'e.g. claude-3-5-sonnet-20241022, claude-3-opus-20240229',
+        google: 'e.g. gemini-2.0-flash, gemini-1.5-pro',
+      };
+
+      const BADGE_LABELS = { local: 'local', openai: 'OpenAI', anthropic: 'Claude', google: 'Google AI' };
+
+      toggle.addEventListener('click', () => {
+        const isOpen = body.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', isOpen);
+      });
+
+      function syncToConfig() {
+        if (currentProvider === 'local') {
+          cfg.local_model = modelNm.value;
+          cfg.local_base_url = baseUrl.value;
+        } else {
+          cfg[`${currentProvider}_model`] = modelNm.value;
+          cfg[`${currentProvider}_key`] = apiKey.value;
+        }
+      }
+
+      function syncFromConfig(provider) {
+        if (provider === 'local') {
+          modelNm.value = cfg.local_model || '';
+          baseUrl.value = cfg.local_base_url || '';
+        } else {
+          modelNm.value = cfg[`${provider}_model`] || '';
+          apiKey.value = cfg[`${provider}_key`] || '';
+        }
+      }
+
+      function syncProviderUI(provider) {
+        syncToConfig();
+        currentProvider = provider;
+        syncFromConfig(provider);
+
+        const isLocal = provider === 'local';
+        apiGrp.style.display = isLocal ? 'none' : 'block';
+        baseGrp.style.display = isLocal ? 'block' : 'none';
+        modelNm.placeholder = PLACEHOLDERS[provider] || '';
+        badge.textContent = BADGE_LABELS[provider] || provider;
+      }
+
+      document.querySelectorAll('input[name="llmProvider"]').forEach(radio => {
+        radio.addEventListener('change', () => syncProviderUI(radio.value));
+      });
+
+      // Load existing settings on page load
+      fetch('/api/llm_settings')
+        .then(r => {
+          if (r.status === 401) window.location.href = '/login.html';
+          return r.json();
+        })
+        .then(s => {
+          cfg = Object.assign(cfg, s);
+          const defaultProv = s.provider || 'local';
+          const radio = document.querySelector(`input[name="llmProvider"][value="${defaultProv}"]`);
+          if (radio) radio.checked = true;
+          currentProvider = defaultProv;
+          syncFromConfig(defaultProv);
+          syncProviderUI(defaultProv);
+        })
+        .catch(() => { /* ignore – defaults are fine */ });
+
+      saveBtn.addEventListener('click', async () => {
+        syncToConfig();
+        const provider = document.querySelector('input[name="llmProvider"]:checked')?.value || 'local';
+        feedback.textContent = '';
+        feedback.className = 'settings-feedback';
+        saveBtn.disabled = true;
+
+        try {
+          const res = await fetch('/api/llm_settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ provider, ...cfg }),
+          });
+          if (res.ok) {
+            badge.textContent = BADGE_LABELS[provider] || provider;
+            feedback.textContent = '✓ Settings saved successfully';
+            feedback.className = 'settings-feedback ok';
+          } else if (res.status === 401) {
+            window.location.href = '/login.html';
+          } else {
+            const err = await res.json().catch(() => ({}));
+            feedback.textContent = `✗ ${err.detail || 'Failed to save settings'}`;
+            feedback.className = 'settings-feedback err';
+          }
+        } catch (e) {
+          feedback.textContent = '✗ Network error — is the server running?';
+          feedback.className = 'settings-feedback err';
+        } finally {
+          saveBtn.disabled = false;
+          setTimeout(() => { if (feedback.classList.contains('ok')) feedback.textContent = ''; }, 4000);
+        }
+      });
+    }());
+  </script>
+</body>
+
+</html>
