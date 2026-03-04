@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login - TheLayman</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f0f13;
+            --surface: #1a1a24;
+            --surface-hover: #232333;
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #f0f0f5;
+            --text-muted: #a0a0b0;
+            --accent: #7c6cf8;
+            --accent-hover: #9184fc;
+            --danger: #ef4444;
+            --success: #10b981;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-dark);
+            background-image:
+                radial-gradient(circle at 15% 50%, rgba(124, 108, 248, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 30%, rgba(34, 211, 160, 0.05) 0%, transparent 40%);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .auth-box {
+            background: rgba(26, 26, 36, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 3rem 2.5rem;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            animation: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slide-up {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: -0.04em;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            background: linear-gradient(135deg, #fff 0%, #a0a0b0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(124, 108, 248, 0.05);
+            box-shadow: 0 0 0 4px rgba(124, 108, 248, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.9rem;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(124, 108, 248, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .modes {
+            display: flex;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 0.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .mode-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.6rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background: var(--surface-hover);
+            color: var(--text);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .feedback {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            text-align: center;
+            min-height: 1.2rem;
+        }
+
+        .feedback.error {
+            color: var(--danger);
+        }
+
+        .feedback.success {
+            color: var(--success);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-box">
+        <div class="logo">TheLayman</div>
+        <div class="subtitle">Log in to unlock your feed</div>
+
+        <div class="modes">
+            <button class="mode-btn active" id="modeLogin">Log In</button>
+            <button class="mode-btn" id="modeRegister">Register</button>
+        </div>
+
+        <form id="authForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="johndoe" required minlength="3" autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="••••••••" required minlength="6"
+                    autocomplete="current-password">
+            </div>
+            <div class="form-group" id="confirmGroup" style="display:none">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" placeholder="••••••••" autocomplete="new-password">
+            </div>
+            <button type="submit" class="btn" id="submitBtn">Sign In</button>
+        </form>
+
+        <div class="feedback" id="feedback"></div>
+    </div>
+
+    <script>
+        let isRegister = false;
+        const modeLogin = document.getElementById('modeLogin');
+        const modeRegister = document.getElementById('modeRegister');
+        const submitBtn = document.getElementById('submitBtn');
+        const form = document.getElementById('authForm');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const confirmInput = document.getElementById('confirmPassword');
+        const confirmGroup = document.getElementById('confirmGroup');
+        const feedback = document.getElementById('feedback');
+
+        function setMode(register) {
+            isRegister = register;
+            confirmGroup.style.display = register ? 'block' : 'none';
+            confirmInput.required = register;
+            if (register) {
+                modeRegister.classList.add('active');
+                modeLogin.classList.remove('active');
+                submitBtn.textContent = 'Create Account';
+            } else {
+                modeLogin.classList.add('active');
+                modeRegister.classList.remove('active');
+                submitBtn.textContent = 'Sign In';
+            }
+            feedback.textContent = '';
+            feedback.className = 'feedback';
+        }
+
+        modeLogin.addEventListener('click', () => setMode(false));
+        modeRegister.addEventListener('click', () => setMode(true));
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+
+            if (isRegister && password !== confirmInput.value) {
+                feedback.textContent = 'Passwords do not match.';
+                feedback.className = 'feedback error';
+                return;
+            }
+
+            const endpoint = isRegister ? '/api/register' : '/api/login';
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Please wait...';
+            feedback.textContent = '';
+            feedback.className = 'feedback';
+
+            try {
+                const res = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (res.ok) {
+                    feedback.textContent = isRegister ? 'Account created! Redirecting...' : 'Success! Redirecting...';
+                    feedback.className = 'feedback success';
+                    setTimeout(() => window.location.href = '/', 600);
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    feedback.textContent = Array.isArray(err.detail) ? err.detail[0].msg : (err.detail || 'Authentication failed');
+                    feedback.className = 'feedback error';
+                }
+            } catch (err) {
+                feedback.textContent = 'Network error. Is the server running?';
+                feedback.className = 'feedback error';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = isRegister ? 'Create Account' : 'Sign In';
+            }
+        });
+
+        // Check if we came here from an unauthorized redirect
+        if (window.location.search.includes('unauthorized=true')) {
+            feedback.textContent = 'Please log in to do that.';
+            feedback.className = 'feedback error';
+        }
+    </script>
+</body>
+
+</html>
