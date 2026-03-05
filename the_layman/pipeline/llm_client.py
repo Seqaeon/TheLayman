@@ -27,20 +27,13 @@ def _get_db_config(user_id: str = "default") -> LLMConfig | None:
     """Try to load config from the DB's LlmSettings row.  Imports are lazy to
     avoid circular imports at module load time."""
     try:
-        # Lazy import to avoid circular dependencies
-        from the_layman.database.store import Store
-        import os
-        
-        db_url = os.getenv("DATABASE_URL")
-        if db_url:
-            store = Store(db_url=db_url)
-        else:
-            from pathlib import Path
-            base = Path(__file__).resolve().parents[2]
-            store = Store(base / "cache" / "the_layman.db")
-            
-        settings = store.get_llm_settings(user_id=user_id)
-    except Exception:
+        # Lazy import to avoid circular dependencies and reuse the global connection pool
+        from the_layman.backend.app import STORE
+        settings = STORE.get_llm_settings(user_id=user_id)
+    except Exception as e:
+        print(f"ERROR reading llm settings: {e}")
+        import traceback
+        traceback.print_exc()
         return None
 
     provider = settings.provider
