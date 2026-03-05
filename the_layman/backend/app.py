@@ -31,12 +31,14 @@ UPLOAD_DIR = BASE_DIR / "cache" / "uploads"
 
 # --- DB path: configurable for cloud (Render persistent disk) ---
 _db_path_env = os.environ.get("DB_PATH")
+_db_url_env = os.environ.get("DATABASE_URL")
+
 if _db_path_env:
     DB_PATH = Path(_db_path_env)
 else:
     DB_PATH = BASE_DIR.parent / "cache" / "the_layman.db"
 
-STORE = Store(DB_PATH)
+STORE = Store(db_path=DB_PATH, db_url=_db_url_env)
 
 app = FastAPI(title="THE LAYMAN API")
 
