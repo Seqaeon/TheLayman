@@ -1159,12 +1159,15 @@
             badge.textContent = BADGE_LABELS[provider] || provider;
             feedback.textContent = '✓ Settings saved successfully';
             feedback.className = 'settings-feedback ok';
+            alert(`SUCCESS: Google AI Settings SENT and SAVED on the database!`);
+            setTimeout(() => toggle.click(), 1000);
           } else if (res.status === 401) {
             window.location.href = '/login.html';
           } else {
             const err = await res.json().catch(() => ({}));
             feedback.textContent = `✗ ${err.detail || 'Failed to save settings'}`;
             feedback.className = 'settings-feedback err';
+            alert(`SERVER ERROR: ${err.detail || res.statusText}`);
           }
         } catch (e) {
           feedback.textContent = '✗ Network error — is the server running?';

@@ -1544,8 +1544,10 @@
                     } else if (r.status === 401) {
                         window.location.href = '/login.html';
                     } else {
-                        fb.textContent = '✗ Failed to save model settings';
+                        const err_text = await r.text();
+                        fb.textContent = `✗ Failed to save mode settings: ${err_text}`;
                         fb.className = 'model-feedback err';
+                        alert(`Backend Error:\n${err_text}`);
                     }
                 } catch (e) {
                     fb.textContent = '✗ Network error';
