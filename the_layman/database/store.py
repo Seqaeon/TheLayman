@@ -169,9 +169,13 @@ class Store:
                     pass  # Column already exists
             else:
                  try:
-                     self._execute(conn, "ALTER TABLE paper_scores ADD COLUMN buzz_score REAL NOT NULL DEFAULT 0")
-                 except Exception:
-                     pass
+                     # For Postgres, if autocommit is True, the exception shouldn't break the whole script, but 
+                     # we can bypass the error entirely by checking if the column exists first:
+                     row = self._execute(conn, "SELECT column_name FROM information_schema.columns WHERE table_name='paper_scores' AND column_name='buzz_score'").fetchone()
+                     if not row:
+                         self._execute(conn, "ALTER TABLE paper_scores ADD COLUMN buzz_score REAL NOT NULL DEFAULT 0")
+                 except Exception as e:
+                     print(f"Postgres migration skipped: {e}")
 
             self._execute(conn,
                 """
