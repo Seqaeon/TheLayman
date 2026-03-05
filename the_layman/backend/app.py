@@ -52,7 +52,7 @@ def _seed_admin() -> None:
     if not username or not password:
         return
     with STORE._connect() as conn:
-        count = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+        count = STORE._execute(conn, "SELECT COUNT(*) FROM users").fetchone()[0]
         if count > 0:
             return  # already seeded
     pw_hash = hash_password(password)
@@ -250,7 +250,7 @@ def register(req: AuthRequest, response: Response) -> dict:
         raise HTTPException(status_code=400, detail="Username>=3, Password>=6 chars required")
     
     with STORE._connect() as conn:
-        count = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+        count = STORE._execute(conn, "SELECT COUNT(*) FROM users").fetchone()[0]
         if count >= 1:
             raise HTTPException(status_code=400, detail="Registration is locked: an admin already exists.")
 
