@@ -140,6 +140,21 @@ def _hydrate(req: ExplainRequest, pdf_path: Path | None = None) -> PaperContent:
         return ingest_pdf(pdf_path)
     raise HTTPException(status_code=400, detail="Provide doi, arxiv_url, or pdf upload")
 
+# --- Auth & Users ---
+
+class AuthRequest(BaseModel):
+    username: str
+    password: str
+
+def get_current_user(session_token: str | None = Cookie(None)) -> dict:
+    if not session_token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    user = STORE.get_user_by_session(session_token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid session")
+    return user
+
+
 
 @app.post("/api/explain", response_model=ExplainResponse)
 async def explain(req: ExplainRequest, user: dict = Depends(get_current_user)) -> ExplainResponse:
@@ -237,19 +252,6 @@ def feed() -> FeedResponse:
     return FeedResponse(items=items)
 
 
-# --- Auth & Users ---
-
-class AuthRequest(BaseModel):
-    username: str
-    password: str
-
-def get_current_user(session_token: str | None = Cookie(None)) -> dict:
-    if not session_token:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    user = STORE.get_user_by_session(session_token)
-    if not user:
-        raise HTTPException(status_code=401, detail="Invalid session")
-    return user
 
 @app.post("/api/register")
 def register(req: AuthRequest, response: Response) -> dict:
