@@ -1,0 +1,31 @@
+# fly.toml — Fly.io deployment config for TheLayman
+# Generated for: flyctl launch
+
+app = "thelayman"        # Change this to your chosen app name (must be globally unique on fly.io)
+primary_region = "lhr"  # London — change to: iad (US-East), ord (Chicago), cdg (Paris), sin (Singapore), etc.
+
+[build]
+  # No Dockerfile needed — Fly auto-detects Python via requirements.txt
+
+[env]
+  # DB will live on the persistent volume mounted at /var/data
+  DB_PATH = "/var/data/the_layman.db"
+  FEED_SCHEDULE_HOUR = "6"   # UTC hour for daily feed generation
+
+  # Set ADMIN_USERNAME and ADMIN_PASSWORD as secrets, NOT here:
+  #   flyctl secrets set ADMIN_USERNAME=yourname ADMIN_PASSWORD=yourpassword
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = false   # Keep always-on (no cold starts)
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
+
+[mounts]
+  source = "thelayman_data"     # Volume name — created via: flyctl volumes create thelayman_data
+  destination = "/var/data"
