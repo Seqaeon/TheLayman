@@ -36,15 +36,44 @@ def _get_db_config(user_id: str = "default") -> LLMConfig | None:
         traceback.print_exc()
         return None
 
-    provider = settings.provider
+    default_models = {
+        "openai": "gpt-4o-mini",
+        "anthropic": "claude-3-5-sonnet-20240620",
+        "google": "gemini-1.5-pro-latest",
+    }
+
+    def _configured_provider_order(selected: str) -> list[str]:
+        ordered = [selected, "google", "openai", "anthropic", "local"]
+        deduped: list[str] = []
+        for p in ordered:
+            if p not in deduped:
+                deduped.append(p)
+        return deduped
+
+    def _provider_usable(provider: str) -> bool:
+        if provider == "local":
+            return bool(settings.local_model.strip())
+        if provider == "openai":
+            return bool(settings.openai_key.strip())
+        if provider == "anthropic":
+            return bool(settings.anthropic_key.strip())
+        if provider == "google":
+            return bool(settings.google_key.strip())
+        return False
+
+    provider = next(
+        (p for p in _configured_provider_order(settings.provider) if _provider_usable(p)),
+        settings.provider,
+    )
+
     if provider == "openai":
-        model = settings.openai_model.strip() or "gpt-4o-mini"
+        model = settings.openai_model.strip() or default_models["openai"]
         api_key = settings.openai_key.strip()
     elif provider == "anthropic":
-        model = settings.anthropic_model.strip() or "claude-3-5-sonnet-20240620"
+        model = settings.anthropic_model.strip() or default_models["anthropic"]
         api_key = settings.anthropic_key.strip()
     elif provider == "google":
-        model = settings.google_model.strip() or "gemini-1.5-pro-latest"
+        model = settings.google_model.strip() or default_models["google"]
         api_key = settings.google_key.strip()
     else:
         model = settings.local_model.strip()
@@ -272,8 +301,16 @@ def generate_json_with_debug(prompt: str, user_id: str = "default") -> tuple[dic
         except json.JSONDecodeError:
             return _extract_json_object(content), content
 
-    except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError, json.JSONDecodeError, KeyError, IndexError, ValueError):
-        return None, None
+    except urllib.error.HTTPError as exc:
+        try:
+            err_body = exc.read().decode("utf-8", errors="replace")
+        except Exception:
+            err_body = ""
+        return None, f"HTTPError {exc.code}: {err_body or exc.reason}"
+    except urllib.error.URLError as exc:
+        return None, f"URLError: {exc.reason}"
+    except (TimeoutError, json.JSONDecodeError, KeyError, IndexError, ValueError) as exc:
+        return None, f"Model call failed: {exc}"
 
 
 def generate_json(prompt: str, user_id: str = "default") -> dict | None:
