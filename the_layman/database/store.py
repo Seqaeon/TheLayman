@@ -420,11 +420,10 @@ class Store:
     def get_user_by_session(self, token: str) -> dict | None:
         with self._connect() as conn:
             # Postgres doesn't have datetime('now'), we map it if needed
-            query = "SELECT u.id, u.username FROM sessions s JOIN users u ON s.user_id = u.id WHERE s.token = ? AND s.expires_at > "
             if self.is_postgres:
-                query += "CURRENT_TIMESTAMP"
+                query = "SELECT u.id, u.username FROM sessions s JOIN users u ON s.user_id = u.id WHERE s.token = ? AND s.expires_at::TIMESTAMP > CURRENT_TIMESTAMP"
             else:
-                query += "datetime('now')"
+                query = "SELECT u.id, u.username FROM sessions s JOIN users u ON s.user_id = u.id WHERE s.token = ? AND s.expires_at > datetime('now')"
 
             row = self._execute(conn, query, (token,)).fetchone()
             if row:
