@@ -70,7 +70,7 @@ class UserPreferences(BaseModel):
 
 
 class LlmSettings(BaseModel):
-    provider: Literal["local", "openai", "anthropic", "google"] = "local"
+    provider: Literal["local", "openai", "anthropic", "google"] = "openai"
     openai_key: str = ""
     anthropic_key: str = ""
     google_key: str = ""

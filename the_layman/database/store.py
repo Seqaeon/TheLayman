@@ -362,8 +362,12 @@ class Store:
             ).fetchone()
             if not row:
                 return LlmSettings()
+            provider_val = row["provider"]
+            if provider_val == "local":
+                provider_val = "openai"
+                
             return LlmSettings(
-                provider=row["provider"],
+                provider=provider_val,
                 openai_key=row["openai_key"],
                 anthropic_key=row["anthropic_key"],
                 google_key=row["google_key"],

@@ -7,7 +7,7 @@ from pathlib import Path
 import secrets
 
 from fastapi import FastAPI, File, HTTPException, Query, UploadFile, Cookie, Depends, Response
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel
 
 from the_layman.backend.schemas import (
@@ -88,14 +88,14 @@ async def startup_event() -> None:
 @app.get("/")
 def home(session_token: str | None = Cookie(None)) -> Response:
     if not session_token or not STORE.get_user_by_session(session_token):
-        return FileResponse(BASE_DIR / "frontend" / "login.html")
+        return RedirectResponse(url="/login.html", status_code=303)
     return FileResponse(BASE_DIR / "frontend" / "feed.html")
 
 @app.get("/view")
 @app.get("/custom")
 def custom_explain(session_token: str | None = Cookie(None)) -> Response:
     if not session_token or not STORE.get_user_by_session(session_token):
-        return FileResponse(BASE_DIR / "frontend" / "login.html")
+        return RedirectResponse(url="/login.html", status_code=303)
     return FileResponse(BASE_DIR / "frontend" / "index.html")
 
 @app.get("/login.html")
