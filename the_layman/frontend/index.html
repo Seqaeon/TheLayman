@@ -760,10 +760,10 @@
 
       <div class="model-settings-body" id="modelSettingsBody">
         <div class="provider-grid">
-          <div class="provider-card">
+          <!-- <div class="provider-card">
             <input type="radio" name="llmProvider" id="provLocal" value="local" checked />
             <label for="provLocal"><span class="provider-icon">🖥️</span>Local (Ollama)</label>
-          </div>
+          </div> -->
           <div class="provider-card">
             <input type="radio" name="llmProvider" id="provOpenai" value="openai" />
             <label for="provOpenai"><span class="provider-icon">✦</span>OpenAI</label>
@@ -1068,7 +1068,7 @@
       const saveBtn = document.getElementById('saveSettingsBtn');
       const feedback = document.getElementById('settingsFeedback');
 
-      let currentProvider = 'local';
+      let currentProvider = 'openai';
       let cfg = {
         openai_key: '', anthropic_key: '', google_key: '',
         openai_model: '', anthropic_model: '', google_model: '',
@@ -1133,7 +1133,7 @@
         })
         .then(s => {
           cfg = Object.assign(cfg, s);
-          const defaultProv = s.provider || 'local';
+          const defaultProv = s.provider || 'openai';
           const radio = document.querySelector(`input[name="llmProvider"][value="${defaultProv}"]`);
           if (radio) radio.checked = true;
           currentProvider = defaultProv;
@@ -1144,7 +1144,7 @@
 
       saveBtn.addEventListener('click', async () => {
         syncToConfig();
-        const provider = document.querySelector('input[name="llmProvider"]:checked')?.value || 'local';
+        const provider = document.querySelector('input[name="llmProvider"]:checked')?.value || 'openai';
         feedback.textContent = '';
         feedback.className = 'settings-feedback';
         saveBtn.disabled = true;

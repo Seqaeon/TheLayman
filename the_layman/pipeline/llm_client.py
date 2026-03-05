@@ -29,10 +29,16 @@ def _get_db_config(user_id: str = "default") -> LLMConfig | None:
     try:
         # Lazy import to avoid circular dependencies
         from the_layman.database.store import Store
-        from pathlib import Path
-
-        base = Path(__file__).resolve().parents[2]
-        store = Store(base / "cache" / "the_layman.db")
+        import os
+        
+        db_url = os.getenv("DATABASE_URL")
+        if db_url:
+            store = Store(db_url=db_url)
+        else:
+            from pathlib import Path
+            base = Path(__file__).resolve().parents[2]
+            store = Store(base / "cache" / "the_layman.db")
+            
         settings = store.get_llm_settings(user_id=user_id)
     except Exception:
         return None

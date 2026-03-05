@@ -86,12 +86,16 @@ async def startup_event() -> None:
 
 
 @app.get("/")
-def home() -> FileResponse:
+def home(session_token: str | None = Cookie(None)) -> Response:
+    if not session_token or not STORE.get_user_by_session(session_token):
+        return FileResponse(BASE_DIR / "frontend" / "login.html")
     return FileResponse(BASE_DIR / "frontend" / "feed.html")
 
 @app.get("/view")
 @app.get("/custom")
-def custom_explain() -> FileResponse:
+def custom_explain(session_token: str | None = Cookie(None)) -> Response:
+    if not session_token or not STORE.get_user_by_session(session_token):
+        return FileResponse(BASE_DIR / "frontend" / "login.html")
     return FileResponse(BASE_DIR / "frontend" / "index.html")
 
 @app.get("/login.html")

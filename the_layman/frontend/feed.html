@@ -1232,10 +1232,10 @@
             <div class="model-section">
                 <div class="model-section-label">Model Provider</div>
                 <div class="provider-grid">
-                    <div class="provider-card">
+                    <!-- <div class="provider-card">
                         <input type="radio" name="feedLlmProvider" id="feedProvLocal" value="local" checked />
                         <label for="feedProvLocal"><span class="provider-icon">🖥️</span>Local</label>
-                    </div>
+                    </div> -->
                     <div class="provider-card">
                         <input type="radio" name="feedLlmProvider" id="feedProvOpenai" value="openai" />
                         <label for="feedProvOpenai"><span class="provider-icon">✦</span>OpenAI</label>
@@ -1457,7 +1457,7 @@
             const baseUrl = document.getElementById('feedBaseUrl');
             const fb = document.getElementById('feedModelFeedback');
 
-            let currentFeedProvider = 'local';
+            let currentFeedProvider = 'openai';
             let feedCfg = {
                 openai_key: '', anthropic_key: '', google_key: '',
                 openai_model: '', anthropic_model: '', google_model: '',
@@ -1515,7 +1515,7 @@
                     if (!res.ok) return;
                     const s = await res.json();
                     feedCfg = Object.assign(feedCfg, s);
-                    const defaultProv = s.provider || 'local';
+                    const defaultProv = s.provider || 'openai';
                     const radio = document.querySelector(`input[name="feedLlmProvider"][value="${defaultProv}"]`);
                     if (radio) radio.checked = true;
                     currentFeedProvider = defaultProv;
@@ -1529,7 +1529,7 @@
             const origBtnSaveHandler = btnSave.onclick; // preserved if needed elsewhere
             btnSave.addEventListener('click', async () => {
                 syncFeedToConfig();
-                const provider = document.querySelector('input[name="feedLlmProvider"]:checked')?.value || 'local';
+                const provider = document.querySelector('input[name="feedLlmProvider"]:checked')?.value || 'openai';
                 fb.textContent = '';
                 fb.className = 'model-feedback';
                 try {
@@ -1554,7 +1554,7 @@
             }, { capture: false });
 
             // Initialize UI defaults purely visually
-            syncFeedProviderUI(document.querySelector('input[name="feedLlmProvider"]:checked')?.value || 'local');
+            syncFeedProviderUI(document.querySelector('input[name="feedLlmProvider"]:checked')?.value || 'openai');
         }());
     </script>
 </body>
