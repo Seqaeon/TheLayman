@@ -45,13 +45,13 @@ def _get_db_config(user_id: str = "default") -> LLMConfig | None:
 
     provider = settings.provider
     if provider == "openai":
-        model = settings.openai_model.strip()
+        model = settings.openai_model.strip() or "gpt-4o-mini"
         api_key = settings.openai_key.strip()
     elif provider == "anthropic":
-        model = settings.anthropic_model.strip()
+        model = settings.anthropic_model.strip() or "claude-3-5-sonnet-20240620"
         api_key = settings.anthropic_key.strip()
     elif provider == "google":
-        model = settings.google_model.strip()
+        model = settings.google_model.strip() or "gemini-1.5-pro-latest"
         api_key = settings.google_key.strip()
     else:
         model = settings.local_model.strip()
