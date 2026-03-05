@@ -1352,15 +1352,50 @@
         btnSave.addEventListener('click', async () => {
             btnSave.disabled = true;
             btnSave.textContent = 'Saving…';
+
+            // 1. Save User feed preferences
             try {
                 const res = await persistSettings();
-                if (res.ok) {
-                    const status = document.getElementById('save-status');
-                    status.style.display = 'inline';
-                    setTimeout(() => { status.style.display = 'none'; closeModal(); }, 1000);
+                if (!res.ok) alert('Failed to save feed topic settings.');
+            } catch (e) { alert('Network error while saving feed topics.'); }
+
+            // 2. Save LLM Provider preferences
+            if (window._syncFeedToConfig) window._syncFeedToConfig();
+
+            const provider = document.querySelector('input[name="feedLlmProvider"]:checked')?.value || 'openai';
+            const fb = document.getElementById('feedModelFeedback');
+            fb.textContent = '';
+            fb.className = 'model-feedback';
+
+            if (window._feedCfg) {
+                try {
+                    const r = await fetch('/api/llm_settings', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ provider, ...window._feedCfg }),
+                    });
+                    if (r.ok) {
+                        fb.textContent = '✓ Model settings saved';
+                        fb.className = 'model-feedback ok';
+                        setTimeout(() => closeModal(), 800);
+                    } else if (r.status === 401) {
+                        window.location.href = '/login.html';
+                    } else {
+                        const err_text = await r.text();
+                        fb.textContent = `✗ Failed: ${err_text}`;
+                        fb.className = 'model-feedback err';
+                        alert(`Backend Error Saving Model:\n${err_text}`);
+                    }
+                } catch (e) {
+                    fb.textContent = '✗ Network error';
+                    fb.className = 'model-feedback err';
                 }
-            } catch (e) { alert('Failed to save settings.'); }
-            finally { btnSave.disabled = false; btnSave.textContent = 'Save Preferences'; }
+            } else {
+                setTimeout(() => closeModal(), 800);
+            }
+
+            btnSave.disabled = false;
+            btnSave.textContent = 'Save Preferences';
         });
 
         // ── Refresh ──────────────────────────────────────────────────────
@@ -1471,7 +1506,7 @@
                 google: 'e.g. gemini-2.0-flash, gemini-1.5-pro',
             };
 
-            function syncFeedToConfig() {
+            window._syncFeedToConfig = function () {
                 if (currentFeedProvider === 'local') {
                     feedCfg.local_model = modelNm.value;
                     feedCfg.local_base_url = baseUrl.value;
@@ -1479,7 +1514,8 @@
                     feedCfg[`${currentFeedProvider}_model`] = modelNm.value;
                     feedCfg[`${currentFeedProvider}_key`] = apiKey.value;
                 }
-            }
+                window._feedCfg = feedCfg;
+            };
 
             function syncFeedFromConfig(provider) {
                 if (provider === 'local') {
@@ -1492,7 +1528,7 @@
             }
 
             function syncFeedProviderUI(provider) {
-                syncFeedToConfig();
+                if (window._syncFeedToConfig) window._syncFeedToConfig();
                 currentFeedProvider = provider;
                 syncFeedFromConfig(provider);
 
@@ -1525,35 +1561,6 @@
             };
             btnSettings.removeEventListener('click', openModal);
             btnSettings.addEventListener('click', window.openModal);
-
-            const origBtnSaveHandler = btnSave.onclick; // preserved if needed elsewhere
-            btnSave.addEventListener('click', async () => {
-                syncFeedToConfig();
-                const provider = document.querySelector('input[name="feedLlmProvider"]:checked')?.value || 'openai';
-                fb.textContent = '';
-                fb.className = 'model-feedback';
-                try {
-                    const r = await fetch('/api/llm_settings', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ provider, ...feedCfg }),
-                    });
-                    if (r.ok) {
-                        fb.textContent = '✓ Model settings saved';
-                        fb.className = 'model-feedback ok';
-                    } else if (r.status === 401) {
-                        window.location.href = '/login.html';
-                    } else {
-                        const err_text = await r.text();
-                        fb.textContent = `✗ Failed to save mode settings: ${err_text}`;
-                        fb.className = 'model-feedback err';
-                        alert(`Backend Error:\n${err_text}`);
-                    }
-                } catch (e) {
-                    fb.textContent = '✗ Network error';
-                    fb.className = 'model-feedback err';
-                }
-            }, { capture: false });
 
             // Initialize UI defaults purely visually
             syncFeedProviderUI(document.querySelector('input[name="feedLlmProvider"]:checked')?.value || 'openai');
