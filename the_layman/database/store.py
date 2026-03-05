@@ -64,35 +64,21 @@ class Store:
             pg_query = query.replace("?", "%s")
             
             # 2. SQLite INSERT OR REPLACE -> Postgres INSERT ON CONFLICT DO UPDATE
-            if "INSERT OR REPLACE INTO papers" in pg_query:
-                pg_query = pg_query.replace("INSERT OR REPLACE INTO papers (id, title, authors, source, url)", 
-                                            "INSERT INTO papers (id, title, authors, source, url)")
-                pg_query += " ON CONFLICT (id) DO UPDATE SET title=EXCLUDED.title, authors=EXCLUDED.authors, source=EXCLUDED.source, url=EXCLUDED.url"
+            if "INSERT OR REPLACE" in pg_query:
+                pg_query = pg_query.replace("INSERT OR REPLACE", "INSERT")
                 
-            elif "INSERT OR REPLACE INTO explanations" in pg_query:
-                pg_query = pg_query.replace("INSERT OR REPLACE INTO explanations (paper_id, content_json, model_used, created_at)",
-                                            "INSERT INTO explanations (paper_id, content_json, model_used, created_at)")
-                pg_query += " ON CONFLICT (paper_id) DO UPDATE SET content_json=EXCLUDED.content_json, model_used=EXCLUDED.model_used, created_at=EXCLUDED.created_at"
-                
-            elif "INSERT OR REPLACE INTO user_preferences" in pg_query:
-                pg_query = pg_query.replace("INSERT OR REPLACE INTO user_preferences (user_id, target_fields, priority_keywords, relevance_instruction)",
-                                            "INSERT INTO user_preferences (user_id, target_fields, priority_keywords, relevance_instruction)")
-                pg_query += " ON CONFLICT (user_id) DO UPDATE SET target_fields=EXCLUDED.target_fields, priority_keywords=EXCLUDED.priority_keywords, relevance_instruction=EXCLUDED.relevance_instruction"
-                
-            elif "INSERT OR REPLACE INTO paper_scores" in pg_query:
-                pg_query = pg_query.replace("INSERT OR REPLACE INTO paper_scores (paper_id, keyword_score, llm_impact_score, buzz_score, total_score, scored_at)",
-                                            "INSERT INTO paper_scores (paper_id, keyword_score, llm_impact_score, buzz_score, total_score, scored_at)")
-                pg_query += " ON CONFLICT (paper_id) DO UPDATE SET keyword_score=EXCLUDED.keyword_score, llm_impact_score=EXCLUDED.llm_impact_score, buzz_score=EXCLUDED.buzz_score, total_score=EXCLUDED.total_score, scored_at=EXCLUDED.scored_at"
-                
-            elif "INSERT OR REPLACE INTO daily_feed" in pg_query:
-                pg_query = pg_query.replace("INSERT OR REPLACE INTO daily_feed (date, ranked_paper_ids_json)",
-                                            "INSERT INTO daily_feed (date, ranked_paper_ids_json)")
-                pg_query += " ON CONFLICT (date) DO UPDATE SET ranked_paper_ids_json=EXCLUDED.ranked_paper_ids_json"
-                
-            elif "INSERT OR REPLACE INTO llm_settings_v2" in pg_query:
-                pg_query = pg_query.replace("INSERT OR REPLACE INTO llm_settings_v2 \n                (user_id, provider, openai_key, anthropic_key, google_key, \n                 openai_model, anthropic_model, google_model, local_model, local_base_url)",
-                                            "INSERT INTO llm_settings_v2 (user_id, provider, openai_key, anthropic_key, google_key, openai_model, anthropic_model, google_model, local_model, local_base_url)")
-                pg_query += " ON CONFLICT (user_id) DO UPDATE SET provider=EXCLUDED.provider, openai_key=EXCLUDED.openai_key, anthropic_key=EXCLUDED.anthropic_key, google_key=EXCLUDED.google_key, openai_model=EXCLUDED.openai_model, anthropic_model=EXCLUDED.anthropic_model, google_model=EXCLUDED.google_model, local_model=EXCLUDED.local_model, local_base_url=EXCLUDED.local_base_url"
+                if "INTO papers" in pg_query:
+                    pg_query += " ON CONFLICT (id) DO UPDATE SET title=EXCLUDED.title, authors=EXCLUDED.authors, source=EXCLUDED.source, url=EXCLUDED.url"
+                elif "INTO explanations" in pg_query:
+                    pg_query += " ON CONFLICT (paper_id) DO UPDATE SET content_json=EXCLUDED.content_json, model_used=EXCLUDED.model_used, created_at=EXCLUDED.created_at"
+                elif "INTO user_preferences" in pg_query:
+                    pg_query += " ON CONFLICT (user_id) DO UPDATE SET target_fields=EXCLUDED.target_fields, priority_keywords=EXCLUDED.priority_keywords, relevance_instruction=EXCLUDED.relevance_instruction"
+                elif "INTO paper_scores" in pg_query:
+                    pg_query += " ON CONFLICT (paper_id) DO UPDATE SET keyword_score=EXCLUDED.keyword_score, llm_impact_score=EXCLUDED.llm_impact_score, buzz_score=EXCLUDED.buzz_score, total_score=EXCLUDED.total_score, scored_at=EXCLUDED.scored_at"
+                elif "INTO daily_feed" in pg_query:
+                    pg_query += " ON CONFLICT (date) DO UPDATE SET ranked_paper_ids_json=EXCLUDED.ranked_paper_ids_json"
+                elif "INTO llm_settings_v2" in pg_query:
+                    pg_query += " ON CONFLICT (user_id) DO UPDATE SET provider=EXCLUDED.provider, openai_key=EXCLUDED.openai_key, anthropic_key=EXCLUDED.anthropic_key, google_key=EXCLUDED.google_key, openai_model=EXCLUDED.openai_model, anthropic_model=EXCLUDED.anthropic_model, google_model=EXCLUDED.google_model, local_model=EXCLUDED.local_model, local_base_url=EXCLUDED.local_base_url"
             
             cursor = conn.cursor()
             cursor.execute(pg_query, params)
@@ -104,10 +90,10 @@ class Store:
         if self.is_postgres:
             pg_query = query.replace("?", "%s")
             # Currently only used for paper_scores
-            if "INSERT OR REPLACE INTO paper_scores" in pg_query:
-                pg_query = pg_query.replace("INSERT OR REPLACE INTO paper_scores (paper_id, keyword_score, llm_impact_score, buzz_score, total_score, scored_at)",
-                                            "INSERT INTO paper_scores (paper_id, keyword_score, llm_impact_score, buzz_score, total_score, scored_at)")
-                pg_query += " ON CONFLICT (paper_id) DO UPDATE SET keyword_score=EXCLUDED.keyword_score, llm_impact_score=EXCLUDED.llm_impact_score, buzz_score=EXCLUDED.buzz_score, total_score=EXCLUDED.total_score, scored_at=EXCLUDED.scored_at"
+            if "INSERT OR REPLACE" in pg_query:
+                pg_query = pg_query.replace("INSERT OR REPLACE", "INSERT")
+                if "INTO paper_scores" in pg_query:
+                    pg_query += " ON CONFLICT (paper_id) DO UPDATE SET keyword_score=EXCLUDED.keyword_score, llm_impact_score=EXCLUDED.llm_impact_score, buzz_score=EXCLUDED.buzz_score, total_score=EXCLUDED.total_score, scored_at=EXCLUDED.scored_at"
             cursor = conn.cursor()
             cursor.executemany(pg_query, params_list)
         else:
