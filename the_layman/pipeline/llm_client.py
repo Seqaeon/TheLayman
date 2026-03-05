@@ -4,6 +4,7 @@ import json
 import os
 import urllib.error
 import urllib.request
+from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
@@ -39,7 +40,7 @@ def _get_db_config(user_id: str = "default") -> LLMConfig | None:
     default_models = {
         "openai": "gpt-4o-mini",
         "anthropic": "claude-3-5-sonnet-20240620",
-        "google": "gemini-1.5-pro-latest",
+        "google": "gemini-2.0-flash",
     }
 
     def _configured_provider_order(selected: str) -> list[str]:
@@ -222,6 +223,20 @@ def _make_request(url: str, payload: dict, headers: dict[str, str]) -> bytes:
         return resp.read()
 
 
+def _google_model_candidates(model: str) -> list[str]:
+    """Return ordered Google model retry candidates for OpenAI-compat endpoint."""
+    candidates = [model]
+    aliases = {
+        "gemini-1.5-pro-latest": ["gemini-1.5-pro", "gemini-2.0-flash"],
+        "gemini-1.5-pro": ["gemini-2.0-flash"],
+        "gemini-pro": ["gemini-1.5-pro", "gemini-2.0-flash"],
+    }
+    for alt in aliases.get(model, ["gemini-2.0-flash"]):
+        if alt not in candidates:
+            candidates.append(alt)
+    return candidates
+
+
 def _call_anthropic(cfg: LLMConfig, prompt: str) -> tuple[dict | None, str | None]:
     """Call the Anthropic Messages API directly (not OpenAI-compat)."""
     max_tokens = int(os.getenv("LAYMAN_MODEL_MAX_TOKENS", "3000"))
@@ -292,14 +307,40 @@ def generate_json_with_debug(prompt: str, user_id: str = "default") -> tuple[dic
             payload["response_format"] = {"type": "json_object"}
             if cfg.seed is not None:
                 payload["seed"] = cfg.seed
-        raw = _make_request(f"{cfg.base_url}/chat/completions", payload, cfg.extra_headers)
-        body = json.loads(raw.decode("utf-8"))
-        content = body["choices"][0]["message"]["content"]
-        try:
-            parsed = json.loads(content)
-            return (parsed if isinstance(parsed, dict) else None), content
-        except json.JSONDecodeError:
-            return _extract_json_object(content), content
+        payloads = [payload]
+        if is_openai_compat:
+            payloads = []
+            for candidate_model in _google_model_candidates(str(payload.get("model", ""))):
+                candidate_payload = deepcopy(payload)
+                candidate_payload["model"] = candidate_model
+                payloads.append(candidate_payload)
+
+        last_http_error: str | None = None
+        for candidate_payload in payloads:
+            try:
+                raw = _make_request(f"{cfg.base_url}/chat/completions", candidate_payload, cfg.extra_headers)
+                body = json.loads(raw.decode("utf-8"))
+                content = body["choices"][0]["message"]["content"]
+                try:
+                    parsed = json.loads(content)
+                    return (parsed if isinstance(parsed, dict) else None), content
+                except json.JSONDecodeError:
+                    return _extract_json_object(content), content
+            except urllib.error.HTTPError as exc:
+                try:
+                    err_body = exc.read().decode("utf-8", errors="replace")
+                except Exception:
+                    err_body = ""
+                msg = f"HTTPError {exc.code}: {err_body or exc.reason}"
+                # Retry only when Google-compatible endpoint rejects model name.
+                if is_openai_compat and exc.code == 404 and "model" in (err_body or "").lower():
+                    last_http_error = msg
+                    continue
+                return None, msg
+
+        if last_http_error:
+            return None, last_http_error
+        return None, "Model call failed: no candidate model succeeded"
 
     except urllib.error.HTTPError as exc:
         try:
