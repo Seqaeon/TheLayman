@@ -153,6 +153,14 @@ class Store:
                     conn.execute("ALTER TABLE paper_scores ADD COLUMN buzz_score REAL NOT NULL DEFAULT 0")
                 except Exception:
                     pass  # Column already exists
+                
+                # SQLite llm_settings_v2 migrations
+                for col in ["google_key", "google_model", "anthropic_key", "anthropic_model", "local_model", "local_base_url"]:
+                    try:
+                        conn.execute(f"ALTER TABLE llm_settings_v2 ADD COLUMN {col} TEXT NOT NULL DEFAULT ''")
+                    except Exception:
+                        pass
+
             else:
                  try:
                      # For Postgres, if autocommit is True, the exception shouldn't break the whole script, but 
@@ -160,6 +168,18 @@ class Store:
                      row = self._execute(conn, "SELECT column_name FROM information_schema.columns WHERE table_name='paper_scores' AND column_name='buzz_score'").fetchone()
                      if not row:
                          self._execute(conn, "ALTER TABLE paper_scores ADD COLUMN buzz_score REAL NOT NULL DEFAULT 0")
+                         
+                     # Also ensure llm_settings_v2 has newer columns like google_key
+                     new_llm_cols = [
+                         "google_key", "google_model", 
+                         "anthropic_key", "anthropic_model", 
+                         "local_model", "local_base_url"
+                     ]
+                     for col in new_llm_cols:
+                         c_row = self._execute(conn, "SELECT column_name FROM information_schema.columns WHERE table_name='llm_settings_v2' AND column_name=%s", (col,)).fetchone()
+                         if not c_row:
+                             self._execute(conn, f"ALTER TABLE llm_settings_v2 ADD COLUMN {col} TEXT NOT NULL DEFAULT ''")
+
                  except Exception as e:
                      print(f"Postgres migration skipped: {e}")
 
