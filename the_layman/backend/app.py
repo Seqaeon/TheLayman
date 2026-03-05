@@ -327,5 +327,10 @@ def get_llm_settings(user: dict = Depends(get_current_user)) -> LlmSettings:
 
 @app.post("/api/llm_settings", response_model=LlmSettings)
 def update_llm_settings(settings: LlmSettings, user: dict = Depends(get_current_user)) -> LlmSettings:
-    STORE.save_llm_settings(settings, user_id=user["id"])
-    return settings
+    try:
+        STORE.save_llm_settings(settings, user_id=user["id"])
+        return settings
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Database Save Failed: {str(e)}")
