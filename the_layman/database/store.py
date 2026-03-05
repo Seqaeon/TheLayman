@@ -369,9 +369,7 @@ class Store:
             if not row:
                 return LlmSettings()
             provider_val = row["provider"]
-            if provider_val == "local":
-                provider_val = "openai"
-                
+
             return LlmSettings(
                 provider=provider_val,
                 openai_key=row["openai_key"],

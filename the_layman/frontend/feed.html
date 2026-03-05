@@ -1260,7 +1260,7 @@
                     <input type="text" id="feedModelName" placeholder="e.g. llama3.2, gpt-4o, gemini-2.0-flash" />
                 </div>
 
-                <div id="feedBaseUrlGroup" class="input-group">
+                <div id="feedBaseUrlGroup" style="display:none" class="input-group">
                     <label for="feedBaseUrl">OLLAMA BASE URL</label>
                     <input type="url" id="feedBaseUrl" placeholder="http://127.0.0.1:11434" />
                 </div>
@@ -1372,7 +1372,7 @@
                     const r = await fetch('/api/llm_settings', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ provider, ...window._feedCfg }),
+                        body: JSON.stringify({ ...window._feedCfg, provider }),
                     });
                     if (r.ok) {
                         fb.textContent = '✓ Model settings saved';

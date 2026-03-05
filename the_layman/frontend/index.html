@@ -753,7 +753,7 @@
         aria-controls="modelSettingsBody">
         <span class="toggle-label">
           ⚙ Model Settings
-          <span class="badge" id="modelBadge">local</span>
+          <span class="badge" id="modelBadge">OpenAI</span>
         </span>
         <span class="chevron">▼</span>
       </button>
@@ -792,7 +792,7 @@
           </div>
 
           <!-- Local only: Ollama base URL -->
-          <div class="input-group" id="settingsBaseUrlGroup">
+          <div class="input-group" id="settingsBaseUrlGroup" style="display:none">
             <label for="settingsBaseUrl">OLLAMA BASE URL</label>
             <input type="url" id="settingsBaseUrl" placeholder="http://127.0.0.1:11434" />
           </div>
@@ -1153,7 +1153,7 @@
           const res = await fetch('/api/llm_settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ provider, ...cfg }),
+            body: JSON.stringify({ ...cfg, provider }),
           });
           if (res.ok) {
             badge.textContent = BADGE_LABELS[provider] || provider;
