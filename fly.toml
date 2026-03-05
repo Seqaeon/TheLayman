@@ -1,7 +1,7 @@
 # fly.toml — Fly.io deployment config for TheLayman
 # Generated for: flyctl launch
 
-app = "thelayman"        # Change this to your chosen app name (must be globally unique on fly.io)
+app = "app-green-pine-436"
 primary_region = "lhr"  # London — change to: iad (US-East), ord (Chicago), cdg (Paris), sin (Singapore), etc.
 
 [build]
