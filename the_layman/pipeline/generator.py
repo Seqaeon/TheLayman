@@ -7,8 +7,8 @@ from the_layman.backend.schemas import Explanation, WhyItMatters
 from the_layman.pipeline.ingestion import PaperContent
 from the_layman.pipeline.llm_client import generate_json_with_debug, model_version_tag
 
+from the_layman.pipeline.llm_client import generate_json_with_debug, model_version_tag
 
-MODEL_VERSION = model_version_tag()
 PROMPT_VERSION = "layman-prompt-v3"
 
 _JARGON_MAP = {
@@ -212,7 +212,7 @@ def _coerce_llm_output(raw: dict, paper: PaperContent) -> Explanation:
         ),
         confidence_level=raw.get("confidence_level") or "unknown",
         original_paper_link=paper.url or "unknown",
-        sources_used=[paper.source, model_version_tag()],
+        sources_used=[paper.source, "generated"],
         generated_timestamp=datetime.now(timezone.utc).isoformat(),
     )
 
@@ -232,14 +232,14 @@ def _failed_explanation(paper: PaperContent) -> Explanation:
         ),
         confidence_level="low",
         original_paper_link=paper.url or "unknown",
-        sources_used=[paper.source, MODEL_VERSION],
+        sources_used=[paper.source, "failed"],
         generated_timestamp=datetime.now(timezone.utc).isoformat(),
     )
 
 
-def build_explanation_with_debug(paper: PaperContent) -> tuple[Explanation, dict | None, str, str | None]:
+def build_explanation_with_debug(paper: PaperContent, user_id: str = "default") -> tuple[Explanation, dict | None, str, str | None]:
     prompt = build_prompt(paper)
-    llm_result, llm_raw_text = generate_json_with_debug(prompt)
+    llm_result, llm_raw_text = generate_json_with_debug(prompt, user_id=user_id)
 
     if llm_result and isinstance(llm_result, dict):
         explanation = _coerce_llm_output(llm_result, paper)
@@ -249,6 +249,6 @@ def build_explanation_with_debug(paper: PaperContent) -> tuple[Explanation, dict
     return _failed_explanation(paper), llm_result, prompt, llm_raw_text
 
 
-def build_explanation(paper: PaperContent) -> Explanation:
-    explanation, _, _, _ = build_explanation_with_debug(paper)
+def build_explanation(paper: PaperContent, user_id: str = "default") -> Explanation:
+    explanation, _, _, _ = build_explanation_with_debug(paper, user_id=user_id)
     return explanation

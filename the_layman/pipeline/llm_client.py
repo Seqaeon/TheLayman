@@ -76,10 +76,6 @@ def _get_db_config(user_id: str = "default") -> LLMConfig | None:
             temperature=temperature,
             seed=seed,
         )
-
-    if not api_key:
-        return None
-
     if provider == "openai":
         return LLMConfig(
             backend="openai",
@@ -224,8 +220,8 @@ def _call_anthropic(cfg: LLMConfig, prompt: str) -> tuple[dict | None, str | Non
         return _extract_json_object(content), content
 
 
-def generate_json_with_debug(prompt: str) -> tuple[dict | None, str | None]:
-    cfg = get_llm_config()
+def generate_json_with_debug(prompt: str, user_id: str = "default") -> tuple[dict | None, str | None]:
+    cfg = get_llm_config(user_id=user_id)
     if not cfg:
         return None, None
 
@@ -287,13 +283,13 @@ def generate_json_with_debug(prompt: str) -> tuple[dict | None, str | None]:
         return None, None
 
 
-def generate_json(prompt: str) -> dict | None:
-    parsed, _raw = generate_json_with_debug(prompt)
+def generate_json(prompt: str, user_id: str = "default") -> dict | None:
+    parsed, _raw = generate_json_with_debug(prompt, user_id=user_id)
     return parsed
 
 
-def model_version_tag() -> str:
-    cfg = get_llm_config()
+def model_version_tag(user_id: str = "default") -> str:
+    cfg = get_llm_config(user_id=user_id)
     if not cfg:
         return "no-model-configured"
     seed = cfg.seed if cfg.seed is not None else "none"

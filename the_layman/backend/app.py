@@ -114,9 +114,9 @@ def favicon() -> Response:
 
 
 
-def _require_model_ready() -> None:
+def _require_model_ready(user_id: str = "default") -> None:
     allow_fallback = os.getenv("LAYMAN_ALLOW_GROUNDED_FALLBACK", "0") == "1"
-    if model_version_tag() == "no-model-configured" and not allow_fallback:
+    if model_version_tag(user_id=user_id) == "no-model-configured" and not allow_fallback:
         raise HTTPException(
             status_code=503,
             detail=(
@@ -142,16 +142,17 @@ def _hydrate(req: ExplainRequest, pdf_path: Path | None = None) -> PaperContent:
 
 
 @app.post("/api/explain", response_model=ExplainResponse)
-async def explain(req: ExplainRequest) -> ExplainResponse:
-    _require_model_ready()
+async def explain(req: ExplainRequest, user: dict = Depends(get_current_user)) -> ExplainResponse:
+    uid = user["id"]
+    _require_model_ready(user_id=uid)
     paper = _hydrate(req)
-    active_model = f"{model_version_tag()}|{PROMPT_VERSION}"
+    active_model = f"{model_version_tag(user_id=uid)}|{PROMPT_VERSION}"
     if not req.regenerate:
         cached = STORE.get_explanation(paper.paper_id, runtime_model=active_model)
         if cached:
             return ExplainResponse(paper_id=paper.paper_id, explanation=cached, cached=True, runtime_model=active_model, prompt_used="unknown", raw_model_output="unknown")
 
-    explanation, raw_model_output, prompt_used, raw_model_text = build_explanation_with_debug(paper)
+    explanation, raw_model_output, prompt_used, raw_model_text = build_explanation_with_debug(paper, user_id=uid)
     STORE.save_paper(paper)
     STORE.save_explanation(paper.paper_id, explanation, runtime_model=active_model)
 
@@ -169,20 +170,22 @@ async def explain(req: ExplainRequest) -> ExplainResponse:
 async def explain_pdf(
     pdf: UploadFile = File(...),
     regenerate: bool = Query(default=False),
+    user: dict = Depends(get_current_user),
 ) -> ExplainResponse:
+    uid = user["id"]
     UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
     pdf_path = UPLOAD_DIR / pdf.filename
     pdf_path.write_bytes(await pdf.read())
 
-    _require_model_ready()
+    _require_model_ready(user_id=uid)
     paper = _hydrate(ExplainRequest(regenerate=regenerate), pdf_path)
-    active_model = f"{model_version_tag()}|{PROMPT_VERSION}"
+    active_model = f"{model_version_tag(user_id=uid)}|{PROMPT_VERSION}"
     if not regenerate:
         cached = STORE.get_explanation(paper.paper_id, runtime_model=active_model)
         if cached:
             return ExplainResponse(paper_id=paper.paper_id, explanation=cached, cached=True, runtime_model=active_model, prompt_used="unknown", raw_model_output="unknown")
 
-    explanation, raw_model_output, prompt_used, raw_model_text = build_explanation_with_debug(paper)
+    explanation, raw_model_output, prompt_used, raw_model_text = build_explanation_with_debug(paper, user_id=uid)
     STORE.save_paper(paper)
     STORE.save_explanation(paper.paper_id, explanation, runtime_model=active_model)
 
