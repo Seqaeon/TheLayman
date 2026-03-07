@@ -75,6 +75,9 @@ def _get_db_config(user_id: str = "default") -> LLMConfig | None:
         api_key = settings.anthropic_key.strip()
     elif provider == "google":
         model = settings.google_model.strip() or default_models["google"]
+        if model == "gemini-1.5-pro-latest":
+            # Legacy alias often returns 404 on newer Google OpenAI-compatible API versions.
+            model = "gemini-2.0-flash"
         api_key = settings.google_key.strip()
     else:
         model = settings.local_model.strip()
